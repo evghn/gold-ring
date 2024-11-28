@@ -41,7 +41,8 @@ $this->title = 'Аутентификация';
             <?php ActiveForm::end(); ?>
 
             <div style="color:#999;">
-            user: 7801025747 / HappyBus07
+            manager: 7801025747 / HappyBus07
+            ul: 1234567890 / 123123
             </div>
         </div>
     </div>

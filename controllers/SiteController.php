@@ -8,7 +8,6 @@ use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
-use app\models\ContactForm;
 use app\models\Role;
 use app\models\User;
 use app\models\UserInfo;
@@ -51,19 +50,9 @@ class SiteController extends Controller
             'error' => [
                 'class' => 'yii\web\ErrorAction',
             ],
-            'captcha' => [
-                'class' => 'yii\captcha\CaptchaAction',
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
-            ],
+           
         ];
     }
-
-    /**
-     * Displays homepage.
-     *
-     * @return string
-     */
-
 
     /**
      * Login action.

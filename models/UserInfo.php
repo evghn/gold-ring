@@ -26,10 +26,6 @@ use Yii;
 class UserInfo extends \yii\db\ActiveRecord
 {
     
-    const SCENARIO_CREATE = 'create';
-    
-
-    
     public ?string $inn = null;
     public ?string $password = null;
     public ?string $password_repeat = null;
@@ -67,7 +63,7 @@ class UserInfo extends \yii\db\ActiveRecord
             [['user_id'], 'integer'],            
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],                   
             
-            [['inn'], 'unique', 'targetClass' => User::class/* , 'on' => self::SCENARIO_CREATE */],
+            [['inn'], 'unique', 'targetClass' => User::class],
         ];
     }
 
@@ -103,5 +99,11 @@ class UserInfo extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
+
+
+    public static function getUserInfo(int $user_id): null|object
+    {
+        return self::findOne(['user_id' => $user_id]);
     }
 }

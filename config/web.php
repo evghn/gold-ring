@@ -60,6 +60,7 @@ $config = [
     'modules' => [
         'account' => [
             'class' => 'app\modules\account\Module',
+            'defaultRoute' => 'route/index',
         ],
         'manager' => [
             'class' => 'app\modules\manager\Module',

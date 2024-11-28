@@ -5,16 +5,23 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "route".
+ * This is the model class for table "application".
  *
  * @property int $id
- * @property int $application_id
- * @property int $point_id
- * @property string|null $pause
- * @property int $time_route
+ * @property int $point_start_id
+ * @property int $point_end_id
+ * @property string $date_start
+ * @property string $time_start
+ * @property string $time_all
+ * @property string $time_end
+ * @property int $user_id
+ * @property string $created_at
+ * @property string|null $updated_at
  *
- * @property Application $application
- * @property Point $point
+ * @property Point $pointEnd
+ * @property Point $pointStart
+ * @property Route[] $routes
+ * @property User $user
  */
 class Route extends \yii\db\ActiveRecord
 {
@@ -32,11 +39,12 @@ class Route extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['application_id', 'point_id'], 'required'],
-            [['application_id', 'point_id', 'time_route'], 'integer'],
-            [['pause'], 'safe'],
-            [['application_id'], 'exist', 'skipOnError' => true, 'targetClass' => Application::class, 'targetAttribute' => ['application_id' => 'id']],
-            [['point_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_id' => 'id']],
+            [['point_start_id', 'point_end_id', 'date_start', 'time_start', 'time_all', 'time_end', 'user_id'], 'required'],
+            [['point_start_id', 'point_end_id', 'user_id'], 'integer'],
+            [['date_start', 'time_start', 'time_all', 'time_end', 'created_at', 'updated_at'], 'safe'],
+            [['point_start_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_start_id' => 'id']],
+            [['point_end_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_end_id' => 'id']],
+            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
 
@@ -47,30 +55,55 @@ class Route extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'application_id' => 'Application ID',
-            'point_id' => 'Point ID',
-            'pause' => 'Pause',
-            'time_route' => 'Time Route',
+            'point_start_id' => 'Point Start ID',
+            'point_end_id' => 'Point End ID',
+            'date_start' => 'Date Start',
+            'time_start' => 'Time Start',
+            'time_all' => 'Time All',
+            'time_end' => 'Time End',
+            'user_id' => 'User ID',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
         ];
     }
 
     /**
-     * Gets query for [[Application]].
+     * Gets query for [[PointEnd]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getApplication()
+    public function getPointEnd()
     {
-        return $this->hasOne(Application::class, ['id' => 'application_id']);
+        return $this->hasOne(Point::class, ['id' => 'point_end_id']);
     }
 
     /**
-     * Gets query for [[Point]].
+     * Gets query for [[PointStart]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getPoint()
+    public function getPointStart()
     {
-        return $this->hasOne(Point::class, ['id' => 'point_id']);
+        return $this->hasOne(Point::class, ['id' => 'point_start_id']);
+    }
+
+    /**
+     * Gets query for [[RouteItems]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRouteItems()
+    {
+        return $this->hasMany(RouteItem::class, ['route_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[User]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUser()
+    {
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 }

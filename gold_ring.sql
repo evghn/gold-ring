@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Хост: MariaDB-11.2
--- Время создания: Ноя 28 2024 г., 07:13
--- Версия сервера: 11.2.2-MariaDB
--- Версия PHP: 8.3.6
+-- Хост: 127.0.0.1:33061
+-- Время создания: Ноя 28 2024 г., 15:43
+-- Версия сервера: 10.6.9-MariaDB
+-- Версия PHP: 8.1.9
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,25 +24,6 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `application`
---
-
-CREATE TABLE `application` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `point_start_id` int(10) UNSIGNED NOT NULL,
-  `point_end_id` int(10) UNSIGNED NOT NULL,
-  `date_start` date NOT NULL,
-  `time_start` time NOT NULL,
-  `time_all` time NOT NULL,
-  `time_end` time NOT NULL,
-  `user_id` int(10) UNSIGNED NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Структура таблицы `edges`
 --
 
@@ -53,6 +34,23 @@ CREATE TABLE `edges` (
   `time` time NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Дамп данных таблицы `edges`
+--
+
+INSERT INTO `edges` (`id`, `source_id`, `target_id`, `time`) VALUES
+(12, 1, 2, '01:30:00'),
+(13, 2, 3, '01:10:00'),
+(14, 3, 4, '01:00:00'),
+(15, 4, 5, '01:00:00'),
+(16, 5, 6, '01:40:00'),
+(17, 6, 7, '01:40:00'),
+(18, 7, 8, '01:10:00'),
+(19, 8, 9, '00:40:00'),
+(20, 9, 1, '02:40:00'),
+(21, 9, 10, '01:00:00'),
+(22, 7, 11, '01:10:00');
+
 -- --------------------------------------------------------
 
 --
@@ -61,9 +59,26 @@ CREATE TABLE `edges` (
 
 CREATE TABLE `point` (
   `id` int(10) UNSIGNED NOT NULL,
-  `ttile` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `ttile` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
   `end_point` tinyint(3) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `point`
+--
+
+INSERT INTO `point` (`id`, `ttile`, `end_point`) VALUES
+(1, 'Москва', 0),
+(2, 'Сергиев Пасад', 0),
+(3, 'Переславль Залесский', 0),
+(4, 'Ростов', 0),
+(5, 'Ярославль', 0),
+(6, 'Кострома', 0),
+(7, 'Иваново', 0),
+(8, 'Суздаль', 0),
+(9, 'Владимир', 0),
+(10, 'Гусь-Хрустальный', 1),
+(11, 'Палех', 1);
 
 -- --------------------------------------------------------
 
@@ -73,7 +88,7 @@ CREATE TABLE `point` (
 
 CREATE TABLE `role` (
   `id` int(10) UNSIGNED NOT NULL,
-  `title` varchar(255) NOT NULL
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -92,7 +107,26 @@ INSERT INTO `role` (`id`, `title`) VALUES
 
 CREATE TABLE `route` (
   `id` int(10) UNSIGNED NOT NULL,
-  `application_id` int(10) UNSIGNED NOT NULL,
+  `point_start_id` int(10) UNSIGNED NOT NULL,
+  `point_end_id` int(10) UNSIGNED NOT NULL,
+  `date_start` date NOT NULL,
+  `time_start` time NOT NULL,
+  `time_all` time NOT NULL,
+  `time_end` time NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `route_item`
+--
+
+CREATE TABLE `route_item` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `route_id` int(10) UNSIGNED NOT NULL,
   `point_id` int(10) UNSIGNED NOT NULL,
   `pause` time DEFAULT NULL,
   `time_route` int(10) UNSIGNED NOT NULL DEFAULT 0
@@ -106,9 +140,9 @@ CREATE TABLE `route` (
 
 CREATE TABLE `user` (
   `id` int(10) UNSIGNED NOT NULL,
-  `inn` varchar(10) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `auth_key` varchar(255) DEFAULT NULL,
+  `inn` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `auth_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `role_id` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -117,7 +151,9 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `inn`, `password`, `auth_key`, `role_id`) VALUES
-(3, '7801025747', '$2y$13$/xuCPCEXSkLy.BIm4ap3r.n1u6LbuB.S1OfStH56B2xEYvl6SGqO6', 'q', 2);
+(3, '7801025747', '$2y$13$/xuCPCEXSkLy.BIm4ap3r.n1u6LbuB.S1OfStH56B2xEYvl6SGqO6', NULL, 2),
+(10, '1234567892', '$2y$13$2qTWfpSyrSyMk2gp/XjvBubuRgDgqsqa1HJZXE6cdIByT60FkWxhi', '54RETP9aHST0HoMJyMHfisl2rgKEG3BR', 1),
+(11, '1234567891', '$2y$13$F/cGPlNGzBVv0VVu9XYLI.808ieHmNWKI5LwLAT/pmUD8Q7wxDAgK', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -128,31 +164,30 @@ INSERT INTO `user` (`id`, `inn`, `password`, `auth_key`, `role_id`) VALUES
 CREATE TABLE `user_info` (
   `id` int(10) UNSIGNED NOT NULL,
   `user_id` int(10) UNSIGNED NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `address` varchar(255) NOT NULL,
-  `rto` varchar(10) DEFAULT NULL,
-  `kpp` varchar(9) NOT NULL,
-  `rs` varchar(20) NOT NULL,
-  `bank` varchar(255) NOT NULL,
-  `bik` varchar(9) NOT NULL,
-  `kor` varchar(20) DEFAULT NULL,
-  `fio` varchar(255) NOT NULL,
-  `phone` varchar(16) NOT NULL,
-  `email` varchar(255) NOT NULL
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `address` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rto` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `kpp` varchar(9) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rs` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `bank` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `bik` varchar(9) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `kor` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fio` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `user_info`
+--
+
+INSERT INTO `user_info` (`id`, `user_id`, `title`, `address`, `rto`, `kpp`, `rs`, `bank`, `bik`, `kor`, `fio`, `phone`, `email`) VALUES
+(3, 10, 'q', 'q', 'РТО 111111', '123456789', '12345678901234567890', 'q', '123456789', '12345678901234567890', 'й', '+7 999 999 99 99', 'q@q.q'),
+(4, 11, 'q', 'q', '', '123456789', '12345678901234567890', 'q', '123456789', '12345678901234567890', 'й', '+7 999 999 99 99', 'q@q.q');
 
 --
 -- Индексы сохранённых таблиц
 --
-
---
--- Индексы таблицы `application`
---
-ALTER TABLE `application`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `point_start_id` (`point_start_id`),
-  ADD KEY `point_end_id` (`point_end_id`),
-  ADD KEY `user_id` (`user_id`);
 
 --
 -- Индексы таблицы `edges`
@@ -179,7 +214,16 @@ ALTER TABLE `role`
 --
 ALTER TABLE `route`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `application_id` (`application_id`),
+  ADD KEY `point_start_id` (`point_start_id`),
+  ADD KEY `point_end_id` (`point_end_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Индексы таблицы `route_item`
+--
+ALTER TABLE `route_item`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `application_id` (`route_id`),
   ADD KEY `point_id` (`point_id`);
 
 --
@@ -202,22 +246,16 @@ ALTER TABLE `user_info`
 --
 
 --
--- AUTO_INCREMENT для таблицы `application`
---
-ALTER TABLE `application`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT для таблицы `edges`
 --
 ALTER TABLE `edges`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT для таблицы `point`
 --
 ALTER TABLE `point`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT для таблицы `role`
@@ -232,28 +270,26 @@ ALTER TABLE `route`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT для таблицы `route_item`
+--
+ALTER TABLE `route_item`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT для таблицы `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT для таблицы `user_info`
 --
 ALTER TABLE `user_info`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
 --
-
---
--- Ограничения внешнего ключа таблицы `application`
---
-ALTER TABLE `application`
-  ADD CONSTRAINT `application_ibfk_1` FOREIGN KEY (`point_start_id`) REFERENCES `point` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `application_ibfk_2` FOREIGN KEY (`point_end_id`) REFERENCES `point` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `application_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `edges`
@@ -266,8 +302,16 @@ ALTER TABLE `edges`
 -- Ограничения внешнего ключа таблицы `route`
 --
 ALTER TABLE `route`
-  ADD CONSTRAINT `route_ibfk_1` FOREIGN KEY (`application_id`) REFERENCES `application` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `route_ibfk_2` FOREIGN KEY (`point_id`) REFERENCES `point` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `route_ibfk_1` FOREIGN KEY (`point_start_id`) REFERENCES `point` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `route_ibfk_2` FOREIGN KEY (`point_end_id`) REFERENCES `point` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `route_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Ограничения внешнего ключа таблицы `route_item`
+--
+ALTER TABLE `route_item`
+  ADD CONSTRAINT `route_item_ibfk_1` FOREIGN KEY (`route_id`) REFERENCES `route` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `route_item_ibfk_2` FOREIGN KEY (`point_id`) REFERENCES `point` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `user`
