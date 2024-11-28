@@ -9,6 +9,9 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\models\Role;
+use app\models\User;
+use app\models\UserInfo;
 
 class SiteController extends Controller
 {
@@ -59,10 +62,7 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionIndex()
-    {
-        return $this->render('index');
-    }
+
 
     /**
      * Login action.
@@ -72,7 +72,11 @@ class SiteController extends Controller
     public function actionLogin()
     {
         if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+            if (Yii::$app->user->identity->isManager) {
+                return $this->redirect('/manager');
+            } else {
+                return $this->redirect('/account');
+            }            
         }
 
         $model = new LoginForm();
@@ -82,6 +86,42 @@ class SiteController extends Controller
 
         $model->password = '';
         return $this->render('login', [
+            'model' => $model,
+        ]);
+    }
+
+
+    public function actionRegister()
+    {
+        if (!Yii::$app->user->isGuest) {
+            if (Yii::$app->user->identity->isManager) {
+                return $this->redirect('/manager');
+            } else {
+                return $this->redirect('/account');
+            }            
+        }
+
+        $model = new UserInfo();
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->validate()) {
+                $user = new User();
+                $user->attributes = $model->attributes;
+                $user->password = Yii::$app->security->generatePasswordHash($model->password);
+                $user->auth_key = Yii::$app->security->generateRandomString();
+                $user->role_id = Role::findOne(['title' => 'ul'])->id;
+                
+                if ($user->save()) {
+                    $model->user_id = $user->id;
+                    
+                    if ($model->save()) {
+                        Yii::$app->user->login($user);
+                        return $this->redirect('/account');
+                    }
+                }
+            }
+        }
+
+        return $this->render('register', [
             'model' => $model,
         ]);
     }
@@ -98,31 +138,5 @@ class SiteController extends Controller
         return $this->goHome();
     }
 
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-    public function actionAbout()
-    {
-        return $this->render('about');
-    }
+    
 }

@@ -25,6 +25,11 @@ use Yii;
  */
 class UserInfo extends \yii\db\ActiveRecord
 {
+    public ?string $inn = null;
+    public ?string $password = null;
+    public ?string $password_repeat = null;
+
+
     /**
      * {@inheritdoc}
      */
@@ -39,15 +44,25 @@ class UserInfo extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'user_id', 'title', 'address', 'rto', 'kpp', 'rs', 'bank', 'bik', 'kor', 'fio', 'phone', 'email'], 'required'],
-            [['id', 'user_id'], 'integer'],
-            [['title', 'address', 'bank', 'fio', 'email'], 'string', 'max' => 255],
-            [['rto'], 'string', 'max' => 10],
-            [['kpp', 'bik'], 'string', 'max' => 9],
-            [['rs', 'kor'], 'string', 'max' => 20],
-            [['phone'], 'string', 'max' => 16],
-            [['id'], 'unique'],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
+            [[ 'title', 'address', 'kpp', 'rs', 'bank', 'bik',  'fio', 'phone', 'email', 'inn', 'password'], 'required'],
+            [['title', 'address', 'bank', 'fio', 'email'], 'string', 'max' => 255],            
+            [['rto'], 'match', 'pattern' => "/^[РТО]{3}\s([\d]{6})$/u", 'message' => 'Недействительный номер'],            
+            [['kpp', 'bik'], 'match', 'pattern' => "/^[\d]{9}$/"],
+            [['rs', 'kor'], 'match', 'pattern' => "/^[\d]{20}$/"],            
+            
+            [['fio'], 'match', 'pattern' => '/^[а-яё\s\-]+$/ui'],
+            [['phone'], 'match', 'pattern' => "/^\+7(\s([\d]{3})){2}(\s([\d]{2})){2}$/"],
+            ['email', 'email'],
+            
+            [['inn'], 'unique', 'targetClass' => User::class],
+            [['inn'], 'match', 'pattern' => "/^[\d]{10}$/"],
+            
+            [['password'], 'string', 'max' => 255, 'min' => 6],
+            [['password'], 'match', 'pattern' => '/^[a-z\d]+$/i'],
+            [['password_repeat'], 'compare', 'compareAttribute' => 'password'],
+            
+            [['user_id'], 'integer'],            
+            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],                   
         ];
     }
 
@@ -57,19 +72,21 @@ class UserInfo extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'user_id' => 'User ID',
-            'title' => 'Title',
-            'address' => 'Address',
-            'rto' => 'Rto',
-            'kpp' => 'Kpp',
-            'rs' => 'Rs',
-            'bank' => 'Bank',
-            'bik' => 'Bik',
-            'kor' => 'Kor',
-            'fio' => 'Fio',
-            'phone' => 'Phone',
-            'email' => 'Email',
+            'id' => 'ID',            
+            'title' => 'Полное наименование юридического лица',
+            'address' => 'Адрес юридического лица',
+            'rto' => 'Номер из реестра туроператоров',
+            'kpp' => 'КПП',
+            'inn' => 'ИНН',
+            'rs' => 'Расчетный счет',
+            'bank' => 'Наименование Банка',
+            'bik' => 'Банковский идентификатор БИК ',
+            'kor' => 'Корреспондентский счет',
+            'fio' => 'Фамилия, имя, отчество',
+            'phone' => 'Телефон',
+            'email' => 'E-mail',
+            'password' => 'Пароль',
+            'password_repeat' => 'Повтор пароля',
         ];
     }
 

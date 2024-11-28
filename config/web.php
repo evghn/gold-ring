@@ -7,7 +7,9 @@ $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
+    'language' => 'ru-RU',
     'name' => 'Золотое кольцо России',
+    'defaultRoute' => 'site/login',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
@@ -54,6 +56,15 @@ $config = [
         
     ],
     'params' => $params,
+
+    'modules' => [
+        'account' => [
+            'class' => 'app\modules\account\Module',
+        ],
+        'manager' => [
+            'class' => 'app\modules\manager\Module',
+        ],
+    ],
 ];
 
 if (YII_ENV_DEV) {
