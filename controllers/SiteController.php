@@ -12,6 +12,7 @@ use app\models\ContactForm;
 use app\models\Role;
 use app\models\User;
 use app\models\UserInfo;
+use yii\helpers\VarDumper;
 
 class SiteController extends Controller
 {
@@ -105,20 +106,33 @@ class SiteController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             if ($model->validate()) {
                 $user = new User();
-                $user->attributes = $model->attributes;
+                $user->load(Yii::$app->request->post(), 'UserInfo');
                 $user->password = Yii::$app->security->generatePasswordHash($model->password);
                 $user->auth_key = Yii::$app->security->generateRandomString();
                 $user->role_id = Role::findOne(['title' => 'ul'])->id;
                 
-                if ($user->save()) {
-                    $model->user_id = $user->id;
-                    
-                    if ($model->save()) {
+                if ($user->validate()) {
+                    $user->save();
+                    $model->user_id = $user->id;                    
+                    if ($model->save(false)) {
                         Yii::$app->user->login($user);
                         return $this->redirect('/account');
+                    } else {
+                        
+                        // VarDumper::dump($model->errors, 10, true); die;
                     }
+                } else {
+                     // контрольная точка для отладки
+                    // VarDumper::dump($model->inn, 10, true); 
+                    // VarDumper::dump($model->attributes, 10, true); 
+                    // VarDumper::dump($user->attributes, 10, true); 
+                    // VarDumper::dump($user->errors, 10, true); die;
                 }
+            } else {
+                 // контрольная точка для отладки
+                // VarDumper::dump($model->errors, 10, true); die;
             }
+
         }
 
         return $this->render('register', [
@@ -133,7 +147,11 @@ class SiteController extends Controller
      */
     public function actionLogout()
     {
-        Yii::$app->user->logout();
+        if ($user = User::findByUsername(Yii::$app->user->identity->inn))  {
+            Yii::$app->user->logout();
+            $user->auth_key = null;
+            $user->save();
+        }
 
         return $this->goHome();
     }

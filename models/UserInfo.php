@@ -25,10 +25,14 @@ use Yii;
  */
 class UserInfo extends \yii\db\ActiveRecord
 {
+    
+    const SCENARIO_CREATE = 'create';
+    
+
+    
     public ?string $inn = null;
     public ?string $password = null;
     public ?string $password_repeat = null;
-
 
     /**
      * {@inheritdoc}
@@ -47,15 +51,14 @@ class UserInfo extends \yii\db\ActiveRecord
             [[ 'title', 'address', 'kpp', 'rs', 'bank', 'bik',  'fio', 'phone', 'email', 'inn', 'password'], 'required'],
             [['title', 'address', 'bank', 'fio', 'email'], 'string', 'max' => 255],            
             [['rto'], 'match', 'pattern' => "/^[РТО]{3}\s([\d]{6})$/u", 'message' => 'Недействительный номер'],            
-            [['kpp', 'bik'], 'match', 'pattern' => "/^[\d]{9}$/"],
-            [['rs', 'kor'], 'match', 'pattern' => "/^[\d]{20}$/"],            
+            [['kpp', 'bik'], 'match', 'pattern' => "/^[\d]{9}$/", 'message' => "Необходимо указать 9 цифр"],
+            [['rs', 'kor'], 'match', 'pattern' => "/^[\d]{20}$/", 'message' => "Необходимо указать 20 цифр"],            
             
             [['fio'], 'match', 'pattern' => '/^[а-яё\s\-]+$/ui'],
             [['phone'], 'match', 'pattern' => "/^\+7(\s([\d]{3})){2}(\s([\d]{2})){2}$/"],
             ['email', 'email'],
             
-            [['inn'], 'unique', 'targetClass' => User::class],
-            [['inn'], 'match', 'pattern' => "/^[\d]{10}$/"],
+            [['inn'], 'match', 'pattern' => "/^[\d]{10}$/", 'message' => "Необходимо указать 10 цифр"],
             
             [['password'], 'string', 'max' => 255, 'min' => 6],
             [['password'], 'match', 'pattern' => '/^[a-z\d]+$/i'],
@@ -63,6 +66,8 @@ class UserInfo extends \yii\db\ActiveRecord
             
             [['user_id'], 'integer'],            
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],                   
+            
+            [['inn'], 'unique', 'targetClass' => User::class/* , 'on' => self::SCENARIO_CREATE */],
         ];
     }
 

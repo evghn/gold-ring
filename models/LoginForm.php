@@ -28,8 +28,7 @@ class LoginForm extends Model
         return [
             // inn and password are both required
             [['inn', 'password'], 'required'],
-            // rememberMe must be a boolean value
-            ['rememberMe', 'boolean'],
+           
             // password is validated by validatePassword()
             ['password', 'validatePassword'],
         ];
@@ -70,7 +69,10 @@ class LoginForm extends Model
     public function login()
     {
         if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser());
+            $user = $this->getUser();
+            $user->auth_key = Yii::$app->security->generateRandomString();
+            $user->save();
+            return Yii::$app->user->login($user);
         }
         return false;
     }
