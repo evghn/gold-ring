@@ -32,6 +32,9 @@ class Route extends \yii\db\ActiveRecord
 
     public int $step = 1;
     public ?string $stop_point = null;
+    public ?string $route_item = null;
+    // public ?string $route_item = null;
+
 
     /**
      * {@inheritdoc}

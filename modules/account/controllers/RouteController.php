@@ -8,6 +8,7 @@ use app\models\Route;
 use app\models\UserInfo;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -84,6 +85,7 @@ class RouteController extends Controller
     public function actionCreate()
     {
         $model = new Route();
+        $dataProvider = new ArrayDataProvider();
 
         match ($model->step) {
             1 => $model->scenario = Route::SCENARIO_STEP1,
@@ -105,7 +107,10 @@ class RouteController extends Controller
 
                     switch ($model->step) {                        
                         case 2:
-                            
+                            $routes = Edges::graphGo($model->point_start_id, $model->point_end_id);
+                            // VarDumper::dump($routes, 10, true); die;
+                            $dataProvider = new ArrayDataProvider();
+                            $dataProvider->allModels = $routes;
                             $model->scenario = Route::SCENARIO_STEP2;
                             break;
                         case 3:
@@ -122,6 +127,7 @@ class RouteController extends Controller
         return $this->render('create', [
             'model' => $model,
             'startPoints' => $startPoints,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
