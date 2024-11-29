@@ -8,14 +8,14 @@ use Yii;
  * This is the model class for table "point".
  *
  * @property int $id
- * @property string $ttile
+ * @property string $title
  * @property int $end_point
  *
- * @property Application[] $applications
- * @property Application[] $applications0
+ * @property Route[] $Routes
+ * @property Route[] $Routes0
  * @property Edges[] $edges
  * @property Edges[] $edges0
- * @property Route[] $routes
+ * @property RouteItem[] $routeItems
  */
 class Point extends \yii\db\ActiveRecord
 {
@@ -33,9 +33,9 @@ class Point extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['ttile'], 'required'],
+            [['title'], 'required'],
             [['end_point'], 'integer'],
-            [['ttile'], 'string', 'max' => 255],
+            [['title'], 'string', 'max' => 255],
         ];
     }
 
@@ -46,29 +46,29 @@ class Point extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'ttile' => 'Ttile',
+            'title' => 'Title',
             'end_point' => 'End Point',
         ];
     }
 
     /**
-     * Gets query for [[Applications]].
+     * Gets query for [[Routs]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getApplications()
+    public function getRouts()
     {
-        return $this->hasMany(Application::class, ['point_start_id' => 'id']);
+        return $this->hasMany(Route::class, ['point_start_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Applications0]].
+     * Gets query for [[Route0]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getApplications0()
+    public function getRoute0()
     {
-        return $this->hasMany(Application::class, ['point_end_id' => 'id']);
+        return $this->hasMany(Route::class, ['point_end_id' => 'id']);
     }
 
     /**
@@ -92,12 +92,33 @@ class Point extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Routes]].
+     * Gets query for [[RoutItems]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getRoutes()
+    public function getRoutItems()
     {
-        return $this->hasMany(Route::class, ['point_id' => 'id']);
+        return $this->hasMany(RouteItem::class, ['point_id' => 'id']);
     }
+
+
+    public static function getStartPoints()
+    {
+        return self::find()
+                   ->select('title')
+                   ->where(['end_point' => 0])
+                   ->indexBy('id')
+                   ->column()
+                   ;
+    }
+
+    public static function getEndPoints($id)
+    {
+        return self::find()                   
+                   ->where(['!=', 'id',  $id])
+                   ->all()
+                   ;
+    }
+    
+
 }

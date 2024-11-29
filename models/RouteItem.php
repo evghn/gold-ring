@@ -73,4 +73,7 @@ class RouteItem extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Point::class, ['id' => 'point_id']);
     }
+
+
+    
 }

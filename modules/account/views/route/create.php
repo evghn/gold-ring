@@ -3,11 +3,9 @@
 use yii\helpers\Html;
 
 /** @var yii\web\View $this */
-/** @var app\models\Application $model */
+/** @var app\models\Route $model */
 
-$this->title = 'Create Application';
-$this->params['breadcrumbs'][] = ['label' => 'Applications', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
+$this->title = 'Создание маршрута';
 ?>
 <div class="application-create">
 
@@ -15,6 +13,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $this->render('_form', [
         'model' => $model,
+        'startPoints' => $startPoints,
     ]) ?>
 
 </div>

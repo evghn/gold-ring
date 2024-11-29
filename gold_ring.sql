@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Хост: 127.0.0.1:33061
--- Время создания: Ноя 28 2024 г., 15:43
--- Версия сервера: 10.6.9-MariaDB
--- Версия PHP: 8.1.9
+-- Хост: MariaDB-11.2
+-- Время создания: Ноя 29 2024 г., 07:17
+-- Версия сервера: 11.2.2-MariaDB
+-- Версия PHP: 8.3.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -27,6 +27,7 @@ SET time_zone = "+00:00";
 -- Структура таблицы `edges`
 --
 
+DROP TABLE IF EXISTS `edges`;
 CREATE TABLE `edges` (
   `id` int(10) UNSIGNED NOT NULL,
   `source_id` int(10) UNSIGNED NOT NULL,
@@ -57,9 +58,10 @@ INSERT INTO `edges` (`id`, `source_id`, `target_id`, `time`) VALUES
 -- Структура таблицы `point`
 --
 
+DROP TABLE IF EXISTS `point`;
 CREATE TABLE `point` (
   `id` int(10) UNSIGNED NOT NULL,
-  `ttile` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `end_point` tinyint(3) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -67,7 +69,7 @@ CREATE TABLE `point` (
 -- Дамп данных таблицы `point`
 --
 
-INSERT INTO `point` (`id`, `ttile`, `end_point`) VALUES
+INSERT INTO `point` (`id`, `title`, `end_point`) VALUES
 (1, 'Москва', 0),
 (2, 'Сергиев Пасад', 0),
 (3, 'Переславль Залесский', 0),
@@ -86,9 +88,10 @@ INSERT INTO `point` (`id`, `ttile`, `end_point`) VALUES
 -- Структура таблицы `role`
 --
 
+DROP TABLE IF EXISTS `role`;
 CREATE TABLE `role` (
   `id` int(10) UNSIGNED NOT NULL,
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
+  `title` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -105,6 +108,7 @@ INSERT INTO `role` (`id`, `title`) VALUES
 -- Структура таблицы `route`
 --
 
+DROP TABLE IF EXISTS `route`;
 CREATE TABLE `route` (
   `id` int(10) UNSIGNED NOT NULL,
   `point_start_id` int(10) UNSIGNED NOT NULL,
@@ -124,6 +128,7 @@ CREATE TABLE `route` (
 -- Структура таблицы `route_item`
 --
 
+DROP TABLE IF EXISTS `route_item`;
 CREATE TABLE `route_item` (
   `id` int(10) UNSIGNED NOT NULL,
   `route_id` int(10) UNSIGNED NOT NULL,
@@ -138,11 +143,12 @@ CREATE TABLE `route_item` (
 -- Структура таблицы `user`
 --
 
+DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(10) UNSIGNED NOT NULL,
-  `inn` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `auth_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `inn` varchar(10) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `auth_key` varchar(255) DEFAULT NULL,
   `role_id` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -152,7 +158,7 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`id`, `inn`, `password`, `auth_key`, `role_id`) VALUES
 (3, '7801025747', '$2y$13$/xuCPCEXSkLy.BIm4ap3r.n1u6LbuB.S1OfStH56B2xEYvl6SGqO6', NULL, 2),
-(10, '1234567892', '$2y$13$2qTWfpSyrSyMk2gp/XjvBubuRgDgqsqa1HJZXE6cdIByT60FkWxhi', '54RETP9aHST0HoMJyMHfisl2rgKEG3BR', 1),
+(10, '1234567892', '$2y$13$2qTWfpSyrSyMk2gp/XjvBubuRgDgqsqa1HJZXE6cdIByT60FkWxhi', 'SDPPnezPcjcUXlCfJY3fB7ey10m-vnQw', 1),
 (11, '1234567891', '$2y$13$F/cGPlNGzBVv0VVu9XYLI.808ieHmNWKI5LwLAT/pmUD8Q7wxDAgK', NULL, 1);
 
 -- --------------------------------------------------------
@@ -161,20 +167,21 @@ INSERT INTO `user` (`id`, `inn`, `password`, `auth_key`, `role_id`) VALUES
 -- Структура таблицы `user_info`
 --
 
+DROP TABLE IF EXISTS `user_info`;
 CREATE TABLE `user_info` (
   `id` int(10) UNSIGNED NOT NULL,
   `user_id` int(10) UNSIGNED NOT NULL,
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `address` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `rto` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `kpp` varchar(9) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `rs` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `bank` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `bik` varchar(9) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `kor` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `fio` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
+  `title` varchar(255) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `rto` varchar(10) DEFAULT NULL,
+  `kpp` varchar(9) NOT NULL,
+  `rs` varchar(20) NOT NULL,
+  `bank` varchar(255) NOT NULL,
+  `bik` varchar(9) NOT NULL,
+  `kor` varchar(20) DEFAULT NULL,
+  `fio` varchar(255) NOT NULL,
+  `phone` varchar(16) NOT NULL,
+  `email` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

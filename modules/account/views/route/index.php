@@ -48,9 +48,14 @@ $this->title = 'Личный кабинет';
                 ]) ?>
         </div>
         <div class="col-7 p-3">
-            <?= Html::a('Создание маршрута', ['create'], ['class' => 'btn btn-success']) ?>
-            <?php Pjax::begin(); ?>
             
+            <div class='my-3'>
+                <?= Html::a('Создание маршрута', ['create'], ['class' => 'btn btn-outline-success']) ?>
+                <?= Html::a('test', ['test'], ['class' => 'btn btn-success']) ?>
+
+            </div>
+
+            <?php Pjax::begin(); ?>            
             <?= GridView::widget([
                 'dataProvider' => $dataProvider,
                 'columns' => [

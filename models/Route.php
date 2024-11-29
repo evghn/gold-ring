@@ -25,6 +25,14 @@ use Yii;
  */
 class Route extends \yii\db\ActiveRecord
 {
+
+    const SCENARIO_STEP1 = 'step1';
+    const SCENARIO_STEP2 = 'step2';
+    const SCENARIO_STEP3 = 'step3';
+
+    public int $step = 1;
+    public ?string $stop_point = null;
+
     /**
      * {@inheritdoc}
      */
@@ -39,8 +47,11 @@ class Route extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['point_start_id', 'point_end_id', 'date_start', 'time_start', 'time_all', 'time_end', 'user_id'], 'required'],
-            [['point_start_id', 'point_end_id', 'user_id'], 'integer'],
+            // [[ 'time_all', 'time_end', 'user_id'], 'required'],
+            [['point_start_id', 'point_end_id', 'date_start', 'time_start'], 'required', 'on' => self::SCENARIO_STEP1],
+
+
+            [['point_start_id', 'point_end_id', 'user_id', 'step'], 'integer'],
             [['date_start', 'time_start', 'time_all', 'time_end', 'created_at', 'updated_at'], 'safe'],
             [['point_start_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_start_id' => 'id']],
             [['point_end_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_end_id' => 'id']],
@@ -55,10 +66,10 @@ class Route extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'point_start_id' => 'Point Start ID',
-            'point_end_id' => 'Point End ID',
-            'date_start' => 'Date Start',
-            'time_start' => 'Time Start',
+            'point_start_id' => 'Начальный пункт',
+            'point_end_id' => 'Конечный пункт',
+            'date_start' => 'Дата отправления',
+            'time_start' => 'Время отправления',
             'time_all' => 'Time All',
             'time_end' => 'Time End',
             'user_id' => 'User ID',

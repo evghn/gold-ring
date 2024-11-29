@@ -2,6 +2,8 @@
 
 namespace app\modules\account\controllers;
 
+use app\models\Edges;
+use app\models\Point;
 use app\models\Route;
 use app\models\UserInfo;
 use Yii;
@@ -9,6 +11,7 @@ use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\helpers\VarDumper;
 
 /**
  * RouteController implements the CRUD actions for Route model.
@@ -82,39 +85,70 @@ class RouteController extends Controller
     {
         $model = new Route();
 
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
-            }
-        } else {
-            $model->loadDefaultValues();
-        }
+        match ($model->step) {
+            1 => $model->scenario = Route::SCENARIO_STEP1,
+            2 => $model->scenario = Route::SCENARIO_STEP2,
+            3 => $model->scenario = Route::SCENARIO_STEP3
+        };
 
+        $startPoints = Point::getStartPoints();
+
+        if ($this->request->isPost) {
+            if ($model->load($this->request->post())) {
+
+                if ($model->validate()) {
+                    if ($model->step == 3) {
+                        return $this->redirect(['view', 'id' => $model->id]);
+                    } 
+
+                    $model->step++;
+
+                    switch ($model->step) {                        
+                        case 2:
+                            
+                            $model->scenario = Route::SCENARIO_STEP2;
+                            break;
+                        case 3:
+                            $model->scenario = Route::SCENARIO_STEP3;
+                    };
+                }
+            }
+        }
+        // } else {
+        //     $model->loadDefaultValues();
+        // }
+
+        
         return $this->render('create', [
             'model' => $model,
+            'startPoints' => $startPoints,
         ]);
     }
 
-    /**
-     * Updates an existing Route model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionUpdate($id)
+
+    public function actionEndPoints($id)
     {
-        $model = $this->findModel($id);
+        $items = !empty($id) 
+            ? Point::getEndPoints($id)
+            : [];
+        $result = '<option>Выберете конечный пункт</option>';
+        // VarDumper::dump($items, 10, true); die;
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
-
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+        $result .= implode(
+            array_map(fn($val) => "<option value='$val->id'>" . $val->title . "</option>",
+            $items
+        ));
+        
+        return $result;
     }
 
+
+    public function actionTest()
+    {
+        Edges::graphGo(9, 10);
+    }
+
+    
     /**
      * Deletes an existing Route model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
