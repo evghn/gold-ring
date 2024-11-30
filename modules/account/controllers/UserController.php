@@ -71,7 +71,7 @@ class UserController extends Controller
                 $user->password = Yii::$app->security->generatePasswordHash($model->password);
                 if ($user->validate()) {
                     $user->save();                    
-                    if ($model->save(false)) {                        
+                    if ($model->save(false)) {
                         return $this->redirect('/account');
                     } else {
                         

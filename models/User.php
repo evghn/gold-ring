@@ -61,13 +61,13 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Gets query for [[Applications]].
+     * Gets query for [[Routes]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getApplications()
+    public function getRoutes()
     {
-        return $this->hasMany(Application::class, ['user_id' => 'id']);
+        return $this->hasMany(Route::class, ['user_id' => 'id']);
     }
 
     /**

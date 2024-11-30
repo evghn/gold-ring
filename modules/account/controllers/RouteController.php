@@ -107,8 +107,9 @@ class RouteController extends Controller
 
                     switch ($model->step) {                        
                         case 2:
-                            $routes = Edges::graphGo($model->point_start_id, $model->point_end_id);
-                            // VarDumper::dump($routes, 10, true); die;
+                            $routes = Edges::traceGo($model->point_start_id, $model->point_end_id);
+                            VarDumper::dump($routes, 10, true); die;
+
                             $dataProvider = new ArrayDataProvider();
                             $dataProvider->allModels = $routes;
                             $model->scenario = Route::SCENARIO_STEP2;
@@ -151,7 +152,7 @@ class RouteController extends Controller
 
     public function actionTest()
     {
-        Edges::graphGo(9, 10);
+        VarDumper::dump(Edges::traceGo(7, 5), 10, true);
     }
 
     

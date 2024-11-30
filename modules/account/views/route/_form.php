@@ -38,7 +38,7 @@ use yii\widgets\Pjax;
                     'prompt' => 'Выберете начальный пункт',
                 ]) ?>
 
-                <?= $form->field($model, 'point_end_id')->dropDownList([], [
+                <?= $form->field($model, 'point_end_id')->dropDownList($startPoints, [
                     'prompt' => 'Выберете конечный пункт'
                 ]) ?>
 
@@ -59,7 +59,8 @@ use yii\widgets\Pjax;
     </div>
     
     <?php if ($model->step == 2): ?>
-        <div class="<?= $model->step == 2 ? "" : 'd-none' ?>">
+        <!-- <div class="<?= $model->step == 2 ? "" : 'd-none' ?>"> -->
+        <div>
             <div class="form-group mb-3 border border-primary rounded p-3 mb-2 border-opacity-50">
                 <div style="color:#999;">Выбор маршрута</div>
             
@@ -102,5 +103,5 @@ use yii\widgets\Pjax;
 
 
 <?php
-$this->registerJsFile('/js/create-route.js', ['depends' => JqueryAsset::class]);
+// $this->registerJsFile('/js/create-route.js', ['depends' => JqueryAsset::class]);
 ?>

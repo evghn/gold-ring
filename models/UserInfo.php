@@ -46,10 +46,9 @@ class UserInfo extends \yii\db\ActiveRecord
         return [
             [[ 'title', 'address', 'kpp', 'rs', 'bank', 'bik',  'fio', 'phone', 'email', 'inn', 'password'], 'required'],
             [['title', 'address', 'bank', 'fio', 'email'], 'string', 'max' => 255],            
-            [['rto'], 'match', 'pattern' => "/^[РТО]{3}\s([\d]{6})$/u", 'message' => 'Недействительный номер'],            
             [['kpp', 'bik'], 'match', 'pattern' => "/^[\d]{9}$/", 'message' => "Необходимо указать 9 цифр"],
             [['rs', 'kor'], 'match', 'pattern' => "/^[\d]{20}$/", 'message' => "Необходимо указать 20 цифр"],            
-            
+            [['rto'], 'match', 'pattern' => "/^[РТО]{3}\s([\d]{6})$/u", 'message' => 'Недействительный номер'],            
             [['fio'], 'match', 'pattern' => '/^[а-яё\s\-]+$/ui'],
             [['phone'], 'match', 'pattern' => "/^\+7(\s([\d]{3})){2}(\s([\d]{2})){2}$/"],
             ['email', 'email'],

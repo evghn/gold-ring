@@ -52,13 +52,15 @@ class Route extends \yii\db\ActiveRecord
         return [
             // [[ 'time_all', 'time_end', 'user_id'], 'required'],
             [['point_start_id', 'point_end_id', 'date_start', 'time_start'], 'required', 'on' => self::SCENARIO_STEP1],
-
+            ['point_end_id', 'compare','operator' => '!=', 'compareAttribute' => 'point_start_id'], 
 
             [['point_start_id', 'point_end_id', 'user_id', 'step'], 'integer'],
             [['date_start', 'time_start', 'time_all', 'time_end', 'created_at', 'updated_at'], 'safe'],
             [['point_start_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_start_id' => 'id']],
             [['point_end_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_end_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
+
+
         ];
     }
 
@@ -120,4 +122,7 @@ class Route extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
+
+
+
 }
