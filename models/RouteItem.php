@@ -35,10 +35,11 @@ class RouteItem extends \yii\db\ActiveRecord
     {
         return [
             [['route_id', 'point_id'], 'required', 'on' => self::SCENARIO_CREATE],
-            [['route_id', 'point_id', 'time_route'], 'integer'],
-            [['time_pause'], 'time', 'min' => '2:00', 'max' => '6:00', 'format' => 'php:H:i'],
+            [['route_id', 'point_id', 'time_visit', 'time_out', 'time_pause_sec', 'time_route_sec'], 'integer'],
+            [['time_route',  'time_pause'], 'safe'],
             [['route_id'], 'exist', 'skipOnError' => true, 'targetClass' => Route::class, 'targetAttribute' => ['route_id' => 'id']],
             [['point_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_id' => 'id']],
+            [['time_pause'], 'time', 'min' => '2:00', 'max' => '6:00', 'format' => 'php:H:i'],
         ];
     }
 

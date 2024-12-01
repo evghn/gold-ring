@@ -11,6 +11,7 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
+use yii\db\Expression;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -46,9 +47,12 @@ class RouteController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Route::find(),
-            
+        $dataProviderOn = new ActiveDataProvider([
+            'query' => Route::find()
+                ->with(['pointStart', 'pointEnd'])
+                ->where(['user_id' => Yii::$app->user->id])
+                ->andWhere(['>=', 'date_start', new Expression('CURDATE()')])
+                ,
             'pagination' => [
                 'pageSize' => 10
             ],
@@ -60,8 +64,29 @@ class RouteController extends Controller
             
         ]);
         
+        $dataProviderOff = new ActiveDataProvider([
+            'query' => Route::find()
+                ->with(['pointStart', 'pointEnd'])
+                ->where(['user_id' => Yii::$app->user->id])
+                ->andWhere(['<', 'date_start', new Expression('CURDATE()')])
+                // ->andWhere(['<', 'time_start', new Expression('CURTIME()')])
+                ,
+            'pagination' => [
+                'pageSize' => 10
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'id' => SORT_DESC,
+                ]
+            ],
+            
+        ]);
+
+        // VarDumper::dump($dataProviderOn->query->createCommand()->rawSql, 10, true); die;
+        
         return $this->render('index', [
-            'dataProvider' => $dataProvider,
+            'dataProviderOn' => $dataProviderOn,
+            'dataProviderOff' => $dataProviderOff,
             'useriInfo' => UserInfo::getUserInfo(Yii::$app->user->id)
         ]);
     }
@@ -87,13 +112,60 @@ class RouteController extends Controller
     public function actionCreate()
     {
         $model = new Route();
+        $model->user_id = Yii::$app->user->id;
+
+
         $dataProvider = new ArrayDataProvider();
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post())) {
                 if ($model->validate()) {
                     if ($model->step == 3) {
-                        return $this->redirect(['view', 'id' => $model->id]);
+                        // сохранение маршрута
+                        if ($model->save()) {
+                            $routes = json_decode($model->route_items, true);            
+                            $model->stop_points = [];
+                            $model->time_all = $routes['time_all'];
+                            foreach ($routes['points'] as $item) {
+                                $model->stop_points[] = new RouteItem();
+                            }
+                            
+                            Model::loadMultiple($model->stop_points, Yii::$app->request->post());
+                            if (Model::validateMultiple($model->stop_points)) {                                   
+                                $time_route = 0;
+                                foreach ($routes['points'] as $key => $item) {
+                                    $item_point = $model->stop_points[$key];
+                                    $item_point->route_id = $model->id;
+                                    $item_point->point_id = $item['source_id'];
+
+                                    $item_point->time_route_sec = $item['time_sec'];
+                                    $item_point->time_route = $item['time'];
+
+                                    $time_route += $item_point->time_route_sec;
+
+                                    $item_point->time_visit = $time_route;
+
+                                    if ($item_point->time_pause) {
+                                        $item_point->time_pause_sec =  Edge::timeToSec($item_point->time_pause);
+                                        $time_route += $item_point->time_pause_sec;                                
+                                    }
+                                    $item_point->time_out = $time_route;
+
+                                    if (! $item_point->save()) {
+                                        VarDumper::dump($item_point->errors,10, true);
+                                        die;
+                                    }
+                                }
+
+                                $model->time_end = $time_route;
+                                $model->save();
+                            }
+                        } else {
+                            VarDumper::dump($model->errors, 10, true);                            
+                        }
+                        
+
+                        return $this->redirect(['index']);
                     } 
 
                     $model->step++;

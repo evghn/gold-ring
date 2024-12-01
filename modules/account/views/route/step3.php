@@ -10,6 +10,16 @@ use yii\widgets\Pjax;
 
 // VarDumper::dump($model, 10, true);
 // VarDumper::dump($data, 10, true); die;
+
+?>
+
+<?php Pjax::begin([
+    'id' => 'route-pause-pjax',
+    'enablePushState' => false,
+    'enableReplaceState' => false,
+    'timeout' => 5000,
+]) ?>
+<?php
 if (empty($form)) {
     $form = ActiveForm::begin([
         'id' => 'form-create-route',
@@ -20,23 +30,22 @@ if (empty($form)) {
 }
 ?>
 
-<?php Pjax::begin([
-    'id' => 'route-pause-pjax',
-    'enablePushState' => false,
-    'enableReplaceState' => false,
-    'timeout' => 5000,
-]) ?>
-
-
     <div>
         Время в пути:
         <span class="fw-semibold fs-5 text">
             <?= Edge::secondsToTime($model->time_all) ?>
         </span>
     </div>
+    <div>
+        Время пребытия:
+        <span class="fw-semibold fs-5 text">
+            <?= Edge::timeVisit($model->time_start, $model->time_all) ?>
+        </span>
+    </div>
+    
     <?php if (count($model->stop_points)): ?>
 
-        <?php if (Edge::isMoning($model->time_all)): ?>
+        <?php if (Edge::isMoning($model->time_start, $model->time_all)): ?>
             <div class="alert alert-danger p-2 my-3 fs-5 text" role="alert">
                 Внимание! Во время прибытия автобуса на конечный пункт
                 общественный транспорт не работает

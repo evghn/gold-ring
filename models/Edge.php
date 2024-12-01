@@ -104,16 +104,27 @@ class Edge extends \yii\db\ActiveRecord
         if ($dtF->diff($dtT)->format('%a')) {
             return $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
         }
-        return $dtF->diff($dtT)->format('%h ч., %i мин.');
+        return $dtF->diff($dtT)->format('%h ч., %i мин.');        
     }
 
-    public static function isMoning($seconds)
+    public static function timeVisit($time1, $time2)
+    {        
+        $time1 = strtotime($time1, 0);        
+        return date('H ч., i мин.', $time1 + $time2);
+    }
+
+    public static function isMoning($time1, $time2)
     {
-        $dtF = new \DateTime('@0');
-        $dtT = new \DateTime("@$seconds");
-        return  (int)$dtF->diff($dtT)->format('%h') < 6;
+        $time1 = strtotime($time1, 0);
+        return  (int)date('H', $time1 + $time2) < 6;
     }
 
+
+    public static function timeToSec($time)
+    {
+        return (int)substr($time, 0, 2) * 3600 +
+        (int)substr($time, 3, 2) * 60;
+    }
 
 
     public static function traceGo($id_start, $id_end)
