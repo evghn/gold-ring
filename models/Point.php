@@ -102,23 +102,12 @@ class Point extends \yii\db\ActiveRecord
     }
 
 
-    public static function getStartPoints()
+    public static function getPoints()
     {
         return self::find()
-                   ->select('title')
-                   ->where(['end_point' => 0])
+                   ->select('title')                   
                    ->indexBy('id')
                    ->column()
                    ;
     }
-
-    public static function getEndPoints($id)
-    {
-        return self::find()                   
-                   ->where(['!=', 'id',  $id])
-                   ->all()
-                   ;
-    }
-    
-
 }

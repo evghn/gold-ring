@@ -35,11 +35,11 @@ use yii\widgets\Pjax;
     <div class="<?= $model->step == 1 ? "" : 'd-none' ?>">
         <div class="form-group mb-3 border border-primary rounded p-3 mb-2 border-opacity-50">
             <div class="col-3">
-                <?= $form->field($model, 'point_start_id')->dropDownList(Point::getStartPoints(), [
+                <?= $form->field($model, 'point_start_id')->dropDownList(Point::getPoints(), [
                     'prompt' => 'Выберете начальный пункт',
                 ]) ?>
 
-                <?= $form->field($model, 'point_end_id')->dropDownList(Point::getStartPoints(), [
+                <?= $form->field($model, 'point_end_id')->dropDownList(Point::getPoints(), [
                     'prompt' => 'Выберете конечный пункт'
                 ]) ?>
 
@@ -47,9 +47,9 @@ use yii\widgets\Pjax;
 
 
             <div class="col-2">
-                <?= $form->field($model, 'date_start')->textInput(['type' => 'date', 'min' => date('Y-m-d', time() + 3600 * 24 * 10)]) ?>
+                <?= $form->field($model, 'date_start')->textInput(['type' => 'date', 'min' => date('Y-m-d', time() + 3600 * 24 * 10), 'value' => date('Y-m-d', time() + 3600 * 24 * 11)]) ?>
 
-                <?= $form->field($model, 'time_start')->textInput(['type' => 'time']) ?>
+                <?= $form->field($model, 'time_start')->textInput(['type' => 'time', 'value' => '11:00']) ?>
             </div>
 
             <div class="form-group">
@@ -68,7 +68,7 @@ use yii\widgets\Pjax;
                 'layout' => "{items}",
                 'itemOptions' => ['class' => 'item'],
                 'itemView' => function ($data, $key) use ($form, $model) {
-                    return $this->render('item', compact('data', 'key', 'model', 'form'));
+                    return $this->render('step2', compact('data', 'key', 'model', 'form'));
                 },
             ]) ?>
         </div>
@@ -82,9 +82,9 @@ use yii\widgets\Pjax;
             </div>
             <div>
                 <div class="fw-semibold fs-4 text border-bottom border-primary-subtle border-opacity-75 text-primary-emphasis my-2">
-                    <?= Point::getStartPoints()[$model->point_start_id] ?>
+                    <?= Point::getPoints()[$model->point_start_id] ?>
                     -
-                    <?= Point::getStartPoints()[$model->point_end_id] ?>
+                    <?= Point::getPoints()[$model->point_end_id] ?>
                 </div>
                 <div class="my-2">
                     Отправление:
@@ -100,7 +100,7 @@ use yii\widgets\Pjax;
 
             </div>
             <!-- pjax -->
-            <?= $this->render('pause', compact('form', 'model')) ?>
+            <?= $this->render('step3', compact('form', 'model')) ?>
 
             <div class="form-group d-flex justify-content-end mt-3 px-2">
                 <?= Html::submitButton('Сохранить маршрут', ['class' => 'btn btn-outline-primary']) ?>

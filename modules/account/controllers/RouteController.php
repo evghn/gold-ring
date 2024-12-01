@@ -89,18 +89,8 @@ class RouteController extends Controller
         $model = new Route();
         $dataProvider = new ArrayDataProvider();
 
-        match ($model->step) {
-            1 => $model->scenario = Route::SCENARIO_STEP1,
-            2 => $model->scenario = Route::SCENARIO_STEP2,
-            3 => $model->scenario = Route::SCENARIO_STEP3
-        };
-
-        
-
         if ($this->request->isPost) {
             if ($model->load($this->request->post())) {
-                // VarDumper::dump($model->route_items, 10, true); die;
-                
                 if ($model->validate()) {
                     if ($model->step == 3) {
                         return $this->redirect(['view', 'id' => $model->id]);
@@ -117,7 +107,7 @@ class RouteController extends Controller
                             );
                             $model->route_items = json_encode($routes);
                             $dataProvider->allModels = $routes;
-                            $model->scenario = Route::SCENARIO_STEP2;
+                           
                             break;
                         case 3:
                             $routes = json_decode($model->route_items, true);
@@ -128,8 +118,8 @@ class RouteController extends Controller
                             $model->route_items = json_encode($routes);
                             
 
-                            array_pop($routes['points']);
-                            array_shift($routes['points']);
+                            // array_pop($routes['points']);
+                            // array_shift($routes['points']);
 
                             $model->stop_points = [];
                             foreach ($routes['points'] as $item) {
@@ -142,7 +132,7 @@ class RouteController extends Controller
                             // VarDumper::dump($routes, 10, true); 
                             // VarDumper::dump($model->stop_points, 10, true); 
                             // die;
-                            $model->scenario = Route::SCENARIO_STEP3;
+                           
                     };
                 }
             }
@@ -162,8 +152,8 @@ class RouteController extends Controller
         $model = new Route();
         if ($this->request->isPost && $model->load($this->request->post()) ) {
             $routes = json_decode($model->route_items, true);
-            array_pop($routes['points']);
-            array_shift($routes['points']);
+            // array_pop($routes['points']);
+            // array_shift($routes['points']);
             $model->stop_points = [];
             $model->time_all = $routes['time_all'];
             foreach ($routes['points'] as $item) {                
@@ -180,32 +170,18 @@ class RouteController extends Controller
                 }               
             } 
             
-            return $this->renderAjax('pause', compact('model'));
+            return $this->renderAjax('step3', compact('model'));
         }
     }
 
 
-    // public function actionEndPoints($id)
-    // {
-    //     $items = !empty($id) 
-    //         ? Point::getEndPoints($id)
-    //         : [];
-    //     $result = '<option>Выберете конечный пункт</option>';
-    //     // VarDumper::dump($items, 10, true); die;
-
-    //     $result .= implode(
-    //         array_map(fn($val) => "<option value='$val->id'>" . $val->title . "</option>",
-    //         $items
-    //     ));
-        
-    //     return $result;
-    // }
+    
 
 
-    // public function actionTest()
-    // {
-    //     VarDumper::dump(Edges::traceGo(1, 8), 10, true);
-    // }
+    public function actionTest()
+    {
+        VarDumper::dump(Edges::traceGo(5, 11), 10, true);
+    }
 
     
     /**

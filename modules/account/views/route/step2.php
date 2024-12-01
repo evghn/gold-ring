@@ -4,7 +4,9 @@ use app\models\Edges;
 use app\models\Point;
 use yii\bootstrap5\Html;
 use yii\helpers\ArrayHelper;
+use yii\helpers\VarDumper;
 
+// VarDumper::dump($data, 10, true);
 ?>
 
 <div class="form-group mb-3 border border-primary rounded p-3 border-opacity-50 route-item">
@@ -16,9 +18,9 @@ use yii\helpers\ArrayHelper;
 
         <div>
             <div class="fw-semibold fs-4 text border-bottom border-primary-subtle border-opacity-75 text-primary-emphasis mb-2">
-                <?= Point::getStartPoints()[$model->point_start_id] ?>
+                <?= Point::getPoints()[$model->point_start_id] ?>
                 -
-                <?= Point::getStartPoints()[$model->point_end_id] ?>
+                <?= Point::getPoints()[$model->point_end_id] ?>
             </div>
             <div>
                 Отправление:
@@ -34,7 +36,14 @@ use yii\helpers\ArrayHelper;
 
         <span class="fw-semibold fs-6 text">Маршрут: </span>
         <span class="fw-semibold fs-5 text text-secondary">
-            <?= implode(" - ", ArrayHelper::getColumn($data['points'], 'source_title')) ?>
+            <?= Point::getPoints()[$model->point_start_id] 
+                . ( $data['points'] 
+                    ? ' - ' . implode(" - ", ArrayHelper::getColumn($data['points'], 'source_title'))
+                    : ''
+                )
+                . ' - '  
+                . Point::getPoints()[$model->point_end_id]
+            ?>
         </span>
         <div>
             Время в пути: 

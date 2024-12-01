@@ -26,18 +26,11 @@ use Yii;
 class Route extends \yii\db\ActiveRecord
 {
 
-    const SCENARIO_STEP1 = 'step1';
-    const SCENARIO_STEP2 = 'step2';
-    const SCENARIO_STEP3 = 'step3';
-
     public int $step = 1;
     public $stop_points;
     public $route_items;
     public $time_pause;
    
-    
-
-
     /**
      * {@inheritdoc}
      */
@@ -52,7 +45,7 @@ class Route extends \yii\db\ActiveRecord
     public function rules()
     {
         return [           
-            [['point_start_id', 'point_end_id', 'date_start', 'time_start'], 'required', 'on' => self::SCENARIO_STEP1],
+            [['point_start_id', 'point_end_id', 'date_start', 'time_start'], 'required'],
             ['point_end_id', 'compare','operator' => '!=', 'compareAttribute' => 'point_start_id'], 
 
             [['point_start_id', 'point_end_id', 'time_all', 'user_id', 'step'], 'integer'],

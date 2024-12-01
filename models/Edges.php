@@ -88,6 +88,8 @@ class Edges extends \yii\db\ActiveRecord
                 's.title as source_title',
                 't.title as target_title',
                 new Expression("'00:00' as pause"),
+                "TIME_TO_SEC(edges.time) as time_sec"
+
             ])
             ->joinWith(['source s', 'target t'])
         ;
@@ -120,7 +122,7 @@ class Edges extends \yii\db\ActiveRecord
 
         // получаем все кольцо как массив объектов
         $ring = self::getRawRing()
-            ->where(['t.end_point' => 0])
+            ->where(['s.end_point' => 0])
             ->orderBy('source_id')
             ->indexBy('source_id')
             ->asArray()
@@ -130,36 +132,33 @@ class Edges extends \yii\db\ActiveRecord
         $end_point = 0;
         // поиск что конечная точка - тупик
         $end_route = self::getRawRing()
-            ->where(['target_id' => $id_end])
+            ->where(['source_id' => $id_end])
             ->one();
 
-        if ($end_route->target->end_point) {
+
+        if ($end_route->source?->end_point) {
             // конец маршрута - это точно тупик :)
 
-            if ($end_route->source_id == $id_start) {
+            if ($end_route->target_id == $id_start) {
                 // маршрут всего 2 города
                 $sql = self::getRawRing()
                     ->where([
-                        'source_id' => $id_start,
-                        'target_id' => $id_end,
+                        'source_id' => $id_end,
                     ])
+                    ->asArray()
                     ->one();
-
                 $result[] = [
-                    'points' => [$sql],
-                    'time_all' => $sql->time
+                    'points' => [],
+                    'time_all' => $sql['time_sec'],
+                    'min_time' => true,
                 ];
 
                 return $result;
             }
 
-            // есть альтернативный маршрут 
-            $end_point = null;
-            // поднятие конечной точки временно на кольцо  
-            $id_end = $end_route->source_id;
+            // поднятие конечной точки временно на кольцо              
+            $id_end = $end_route->target_id;
         }
-
-
 
         $ring_keys = array_keys($ring);
         $_ring_keys = array_reverse($ring_keys);
@@ -167,56 +166,80 @@ class Edges extends \yii\db\ActiveRecord
         $route1 = [...$ring_keys, ...$ring_keys];
         $route2 = [...$_ring_keys, ...$_ring_keys];
 
-        // обрезаем до желтого
+        // обрезаем до желтого        
         array_splice($route1, 0, array_search($id_start, $route1));
-        // обрезаем после желтого
-        array_splice($route1, array_search($id_end, $route1) + 1);
-
-        // ----забирем с желотого и далее
-        // $route2 = array_splice($route2, 0, array_search($id_start, $route2));
+        // обрезаем с последнего желтого
+        array_splice($route1, array_search($id_end, $route1));
 
         //обрезаем до желтого
         array_splice($route2, 0, array_search($id_start, $route2));
 
-        // обрезаем после желтого
-        array_splice($route2, array_search($id_end, $route2) + 1);
+        // обрезаем с последнего желтого
+        array_splice($route2, array_search($id_end, $route2));
 
-
-        if (isset($end_ring)) {
-            // надо добавить тупик если он есть
-            $route1 = [...$route1, ...$end_ring];
-            $route2 = [...$route2, ...$end_ring];
+        if ($end_route->source?->end_point) {
+            // добавляем тупик если он есть           
+            $route1 = [...$route1, $end_route->source_id];
+            $route2 = [...$route2, $end_route->source_id];
         }
 
-        $rout1_sql = self::getRawRing()
+        // формируем вермя общее время пути
+        $time1 = self::getRawRing()
             ->where([
                 'source_id' => $route1,
             ])
-            ->andFilterWhere(['t.end_point' => $end_point])
-            ->orderBy(new Expression("field(source_id, " . implode(",", $route1) . ")"));
+            ->orderBy(new Expression("field(source_id, " . implode(",", $route1) . ")"))
+            ->sum(new Expression('TIME_TO_SEC(time)'));
 
-        $rout2_sql = self::getRawRing()
+        $time2 = self::getRawRing()
             ->where(['source_id' => $route2])
-            ->andFilterWhere(['t.end_point' => $end_point])
-            ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"));
-
-        $time1 = (clone $rout1_sql)
-            ->where(['source_id' => array_slice($route1, 0, 1)])
+            ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"))
             ->sum(new Expression('TIME_TO_SEC(time)'));
 
-        $time2 = (clone $rout2_sql)
-            ->where(['source_id' => array_slice($route2, 1)])
-            ->sum(new Expression('TIME_TO_SEC(time)'));
+        // формирование точек останова без начального и конечного пункта
+        $route1 = [...$ring_keys, ...$ring_keys];
+        $route2 = [...$_ring_keys, ...$_ring_keys];
+
+
+        //обрезаем до желтого +1
+        array_splice($route1, 0, array_search($id_start, $route1) + 1);
+        // обрезаем с последнего желтого
+        array_splice($route1, array_search($id_end, $route1));
+
+        //обрезаем до желтого +1
+        array_splice($route2, 0, array_search($id_start, $route2) + 1);
+
+        // обрезаем с последнего желтого
+        array_splice($route2, array_search($id_end, $route2));
+  
+        if ($end_route->source?->end_point) {
+            // добавляем тупик если он есть           
+            $route1 = [...$route1, $id_end];
+            $route2 = [...$route2, $id_end];
+        }
+        
+        $route1_sql = self::getRawRing()
+            ->where([
+                'source_id' => $route1,
+            ])
+            ->orderBy(new Expression("field(source_id, " . implode(",", $route1) . ")"))
+            ->asArray()
+            ->all();
+
+        $route2_sql = self::getRawRing()
+            ->where(['source_id' => $route2])
+            ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"))
+            ->asArray()
+            ->all();
 
         $result[] = [
-            'points' => $rout1_sql->asArray()->all(),
+            'points' => $route1_sql,
             'time_all' => $time1,
             'min_time' => $time1 < $time2,
-
         ];
 
         $result[] = [
-            'points' => $rout2_sql->asArray()->all(),
+            'points' => $route2_sql,
             'time_all' => $time2,
             'min_time' => $time2 < $time1,
         ];

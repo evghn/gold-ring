@@ -37,11 +37,11 @@ if (empty($form)) {
     <?php if (count($model->stop_points)): ?>
 
         <?php if (Edges::isMoning($model->time_all)): ?>
-                <div class="alert alert-danger p-2 my-3 fs-5 text" role="alert">
+            <div class="alert alert-danger p-2 my-3 fs-5 text" role="alert">
                 Внимание! Во время прибытия автобуса на конечный пункт
                 общественный транспорт не работает
-                </div>
-            <?php endif ?>
+            </div>
+        <?php endif ?>
 
         <div class="fw-semibold fs-5 text my-3">Остановки по маршруту: </div>
 
