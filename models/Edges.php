@@ -98,7 +98,11 @@ class Edges extends \yii\db\ActiveRecord
     {
         $dtF = new \DateTime('@0');
         $dtT = new \DateTime("@$seconds");
-        return $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
+        $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
+        if ($dtF->diff($dtT)->format('%a')) {
+            return $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
+        }
+        return $dtF->diff($dtT)->format('%h ч., %i мин.');
     }
 
     public static function isMoning($seconds)
@@ -197,30 +201,26 @@ class Edges extends \yii\db\ActiveRecord
                 ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"))
                 ;
 
-            $time1 = (clone $rout1_sql)
-                ->addSelect('sum(TIME_TO_SEC(time)) as `time_all`')
-                ->asArray()
-                ->one()
+            $time1 = (clone $rout1_sql)  
+                ->sum(new Expression('TIME_TO_SEC(time)'))
                 ;
 
             $time2 = (clone $rout2_sql)
-                ->addSelect('sum(TIME_TO_SEC(time)) as `time_all`')
-                ->asArray()
-                ->one()
+                ->sum(new Expression('TIME_TO_SEC(time)'))
                 ;
                       
             
                 $result[] = [
                     'points' => $rout1_sql->asArray()->all(),
-                    'time_all' => $time1['time_all'],
-                    'min_time' => $time1['time_all'] < $time2['time_all'],
+                    'time_all' => $time1,
+                    'min_time' => $time1 < $time2,
 
                 ];
                 
                 $result[] = [
                     'points' => $rout2_sql->asArray()->all(),
-                    'time_all' => $time2['time_all'],
-                    'min_time' => $time2['time_all'] < $time1['time_all'],
+                    'time_all' => $time2,
+                    'min_time' => $time2 < $time1,
                 ];
                
                                     
