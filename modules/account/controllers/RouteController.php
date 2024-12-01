@@ -116,11 +116,6 @@ class RouteController extends Controller
                                 : $routes[0];
                             $model->time_all = $routes['time_all'];
                             $model->route_items = json_encode($routes);
-                            
-
-                            // array_pop($routes['points']);
-                            // array_shift($routes['points']);
-
                             $model->stop_points = [];
                             foreach ($routes['points'] as $item) {
                                 $rI = new RouteItem();
@@ -128,11 +123,6 @@ class RouteController extends Controller
                                 $model->stop_points[] = $rI;
                             }
                             $dataProvider->allModels = $routes['points'];
-
-                            // VarDumper::dump($routes, 10, true); 
-                            // VarDumper::dump($model->stop_points, 10, true); 
-                            // die;
-                           
                     };
                 }
             }
@@ -151,9 +141,7 @@ class RouteController extends Controller
     {
         $model = new Route();
         if ($this->request->isPost && $model->load($this->request->post()) ) {
-            $routes = json_decode($model->route_items, true);
-            // array_pop($routes['points']);
-            // array_shift($routes['points']);
+            $routes = json_decode($model->route_items, true);            
             $model->stop_points = [];
             $model->time_all = $routes['time_all'];
             foreach ($routes['points'] as $item) {                

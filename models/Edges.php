@@ -218,28 +218,33 @@ class Edges extends \yii\db\ActiveRecord
             $route2 = [...$route2, $id_end];
         }
         
-        $route1_sql = self::getRawRing()
-            ->where([
-                'source_id' => $route1,
-            ])
-            ->orderBy(new Expression("field(source_id, " . implode(",", $route1) . ")"))
-            ->asArray()
-            ->all();
-
-        $route2_sql = self::getRawRing()
-            ->where(['source_id' => $route2])
-            ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"))
-            ->asArray()
-            ->all();
+        
+        if ($route1) {
+            $route1 = self::getRawRing()
+                ->where([
+                    'source_id' => $route1,
+                ])
+                ->orderBy(new Expression("field(source_id, " . implode(",", $route1) . ")"))
+                ->asArray()
+                ->all();
+        }
+        
+        if ($route2) {
+            $route2 = self::getRawRing()
+                ->where(['source_id' => $route2])
+                ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"))
+                ->asArray()
+                ->all();
+        }
 
         $result[] = [
-            'points' => $route1_sql,
+            'points' => $route1,
             'time_all' => $time1,
             'min_time' => $time1 < $time2,
         ];
 
         $result[] = [
-            'points' => $route2_sql,
+            'points' => $route2,
             'time_all' => $time2,
             'min_time' => $time2 < $time1,
         ];
