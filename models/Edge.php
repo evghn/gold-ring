@@ -204,11 +204,6 @@ class Edge extends \yii\db\ActiveRecord
             $route2_2 = [...$route2_2, $end_route->source_id];
         }
         
-        // VarDumper::dump($route1, 10, true); 
-        // VarDumper::dump($route1_2, 10, true); 
-        // VarDumper::dump($route2, 10, true); 
-        // VarDumper::dump($route2_2, 10, true); 
-        
         $where1 = implode(' or ',
             array_map(
                 fn($s, $t) => "(edge.source_id = $s and edge.target_id = $t)",
@@ -238,10 +233,6 @@ class Edge extends \yii\db\ActiveRecord
             ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"))
             ->sum(new Expression('TIME_TO_SEC(time)'))
             ;
-
-        // VarDumper::dump($time1->createCommand()->rawSql, 10, true);     
-        // VarDumper::dump($time2->createCommand()->rawSql, 10, true);
-        // die;     
 
         // формирование точек останова без начального и конечного пункта
         $route1 = [...$ring_keys, ...$ring_keys];

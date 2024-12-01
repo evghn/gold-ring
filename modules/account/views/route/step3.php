@@ -11,15 +11,7 @@ use yii\widgets\Pjax;
 // VarDumper::dump($model, 10, true);
 // VarDumper::dump($data, 10, true); die;
 
-?>
 
-<?php Pjax::begin([
-    'id' => 'route-pause-pjax',
-    'enablePushState' => false,
-    'enableReplaceState' => false,
-    'timeout' => 5000,
-]) ?>
-<?php
 if (empty($form)) {
     $form = ActiveForm::begin([
         'id' => 'form-create-route',
@@ -28,6 +20,14 @@ if (empty($form)) {
         ]
     ]);
 }
+?>
+
+<?php Pjax::begin([
+    'id' => 'route-pause-pjax',
+    'enablePushState' => false,
+    'enableReplaceState' => false,
+    'timeout' => 5000,
+])
 ?>
 
     <div>

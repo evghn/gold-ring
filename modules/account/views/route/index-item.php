@@ -5,6 +5,7 @@ use app\models\Point;
 use yii\bootstrap5\Html;
 use yii\helpers\ArrayHelper;
 use yii\helpers\VarDumper;
+
 ?>
 
 <div class="form-group mb-3 border border-primary rounded p-3 border-opacity-50">
@@ -39,13 +40,12 @@ use yii\helpers\VarDumper;
     </div>
     <div class="form-group d-flex justify-content-end mt-3 px-2 gap-3">
         <?= Html::a('Pасписание маршрута', ['view', 'id' => $model->id], ['class' => 'btn btn-outline-primary' ]) ?>
-        <?php
-
-        $origin = date_create($model->date_start);
-        $target = date_create(date('Y-m-d', time() + 3 * 3600 * 24));
-        if ($origin->diff($target)->format("%a") >= 3) {
-            echo Html::a('Отменить', ['cancel'], ['class' => 'btn btn-outline-warning']);
-        }
+        <?php        
+            $origin = new DateTime($model->date_start);
+            $target = new DateTime();
+            if ($origin > $target &&  $origin->diff($target)->format("%a") >= 3) {
+                echo Html::a('Отменить', ['cancel'], ['class' => 'btn btn-outline-warning']);
+            }
         ?>
     </div>
 </div>

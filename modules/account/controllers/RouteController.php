@@ -58,7 +58,7 @@ class RouteController extends Controller
             ],
             'sort' => [
                 'defaultOrder' => [
-                    'id' => SORT_DESC,
+                    'date_start' => SORT_ASC,
                 ]
             ],
             
@@ -68,15 +68,14 @@ class RouteController extends Controller
             'query' => Route::find()
                 ->with(['pointStart', 'pointEnd'])
                 ->where(['user_id' => Yii::$app->user->id])
-                ->andWhere(['<', 'date_start', new Expression('CURDATE()')])
-                // ->andWhere(['<', 'time_start', new Expression('CURTIME()')])
+                ->andWhere(['<', 'date_start', new Expression('CURDATE()')])                
                 ,
             'pagination' => [
                 'pageSize' => 10
             ],
             'sort' => [
                 'defaultOrder' => [
-                    'id' => SORT_DESC,
+                    'date_start' => SORT_DESC,
                 ]
             ],
             
