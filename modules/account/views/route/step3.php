@@ -1,6 +1,6 @@
 <?php
 
-use app\models\Edges;
+use app\models\Edge;
 use app\models\Point;
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
@@ -31,12 +31,12 @@ if (empty($form)) {
     <div>
         Время в пути:
         <span class="fw-semibold fs-5 text">
-            <?= Edges::secondsToTime($model->time_all) ?>
+            <?= Edge::secondsToTime($model->time_all) ?>
         </span>
     </div>
     <?php if (count($model->stop_points)): ?>
 
-        <?php if (Edges::isMoning($model->time_all)): ?>
+        <?php if (Edge::isMoning($model->time_all)): ?>
             <div class="alert alert-danger p-2 my-3 fs-5 text" role="alert">
                 Внимание! Во время прибытия автобуса на конечный пункт
                 общественный транспорт не работает

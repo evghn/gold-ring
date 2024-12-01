@@ -78,7 +78,7 @@ class Point extends \yii\db\ActiveRecord
      */
     public function getEdges()
     {
-        return $this->hasMany(Edges::class, ['source_id' => 'id']);
+        return $this->hasMany(Edge::class, ['source_id' => 'id']);
     }
 
     /**
@@ -86,9 +86,9 @@ class Point extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getEdges0()
+    public function getEdge0()
     {
-        return $this->hasMany(Edges::class, ['target_id' => 'id']);
+        return $this->hasMany(Edge::class, ['target_id' => 'id']);
     }
 
     /**

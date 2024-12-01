@@ -2,7 +2,7 @@
 
 namespace app\modules\account\controllers;
 
-use app\models\Edges;
+use app\models\Edge;
 use app\models\Point;
 use app\models\Route;
 use app\models\RouteItem;
@@ -101,7 +101,7 @@ class RouteController extends Controller
                     switch ($model->step) {                        
                         case 2:                            
                             $dataProvider = new ArrayDataProvider();
-                            $routes = Edges::traceGo(
+                            $routes = Edge::traceGo(
                                 $model->point_start_id, 
                                 $model->point_end_id
                             );
@@ -168,7 +168,7 @@ class RouteController extends Controller
 
     public function actionTest()
     {
-        VarDumper::dump(Edges::traceGo(5, 11), 10, true);
+        VarDumper::dump(Edge::traceGo(1, 8), 10, true);
     }
 
     

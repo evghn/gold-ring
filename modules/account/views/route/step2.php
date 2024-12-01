@@ -1,6 +1,6 @@
 <?php
 
-use app\models\Edges;
+use app\models\Edge;
 use app\models\Point;
 use yii\bootstrap5\Html;
 use yii\helpers\ArrayHelper;
@@ -48,7 +48,7 @@ use yii\helpers\VarDumper;
         <div>
             Время в пути: 
             <span class="fw-semibold fs-5 text">
-                <?= Edges::secondsToTime($data['time_all']) ?>
+                <?= Edge::secondsToTime($data['time_all']) ?>
             </span>
         </div>
         <div class="form-group d-flex justify-content-end mt-3 px-2">

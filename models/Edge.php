@@ -21,14 +21,14 @@ use yii\helpers\VarDumper;
  * @property Point $source
  * @property Point $target
  */
-class Edges extends \yii\db\ActiveRecord
+class Edge extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'edges';
+        return 'edge';
     }
 
     /**
@@ -84,11 +84,11 @@ class Edges extends \yii\db\ActiveRecord
         // возврат raw кольца
         return  self::find()
             ->select([
-                'edges.*',
+                'edge.*',
                 's.title as source_title',
                 't.title as target_title',
                 new Expression("'00:00' as pause"),
-                "TIME_TO_SEC(edges.time) as time_sec"
+                "TIME_TO_SEC(edge.time) as time_sec"
 
             ])
             ->joinWith(['source s', 'target t'])
@@ -129,7 +129,7 @@ class Edges extends \yii\db\ActiveRecord
             ->all();
 
 
-        $end_point = 0;
+        
         // поиск что конечная точка - тупик
         $end_route = self::getRawRing()
             ->where(['source_id' => $id_end])
@@ -169,32 +169,68 @@ class Edges extends \yii\db\ActiveRecord
         // обрезаем до желтого        
         array_splice($route1, 0, array_search($id_start, $route1));
         // обрезаем с последнего желтого
-        array_splice($route1, array_search($id_end, $route1));
+        array_splice($route1, array_search($id_end, $route1)+1);
 
+        
         //обрезаем до желтого
         array_splice($route2, 0, array_search($id_start, $route2));
-
+        
         // обрезаем с последнего желтого
-        array_splice($route2, array_search($id_end, $route2));
+        array_splice($route2, array_search($id_end, $route2)+1);
 
+        // формируем отрезки
+        $route1_2 = array_slice($route1, 1);
+        $route2_2 = array_slice($route2, 1);
+
+        array_pop($route1);
+        array_pop($route2);
         if ($end_route->source?->end_point) {
             // добавляем тупик если он есть           
             $route1 = [...$route1, $end_route->source_id];
-            $route2 = [...$route2, $end_route->source_id];
+            $route1_2 = [...$route1_2, $end_route->target_id];
+            
+            $route2 = [...$route2, $end_route->target_id];
+            $route2_2 = [...$route2_2, $end_route->source_id];
         }
+        
+        // VarDumper::dump($route1, 10, true); 
+        // VarDumper::dump($route1_2, 10, true); 
+        // VarDumper::dump($route2, 10, true); 
+        // VarDumper::dump($route2_2, 10, true); 
+        
+        $where1 = implode(' or ',
+            array_map(
+                fn($s, $t) => "(edge.source_id = $s and edge.target_id = $t)",
+                $route1,
+                $route1_2
+            )
+        );
+        
+        $where2 = implode(' or ',
+            array_map(
+                fn($s, $t) => "(edge.source_id = $s and edge.target_id = $t)",
+                $route2_2,
+                $route2
+            )
+        );
+
 
         // формируем вермя общее время пути
         $time1 = self::getRawRing()
-            ->where([
-                'source_id' => $route1,
-            ])
+            ->where($where1)
             ->orderBy(new Expression("field(source_id, " . implode(",", $route1) . ")"))
-            ->sum(new Expression('TIME_TO_SEC(time)'));
+            ->sum(new Expression('TIME_TO_SEC(time)'))
+            ;
 
         $time2 = self::getRawRing()
-            ->where(['source_id' => $route2])
+            ->where($where2)
             ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"))
-            ->sum(new Expression('TIME_TO_SEC(time)'));
+            ->sum(new Expression('TIME_TO_SEC(time)'))
+            ;
+
+        // VarDumper::dump($time1->createCommand()->rawSql, 10, true);     
+        // VarDumper::dump($time2->createCommand()->rawSql, 10, true);
+        // die;     
 
         // формирование точек останова без начального и конечного пункта
         $route1 = [...$ring_keys, ...$ring_keys];
