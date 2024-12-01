@@ -12,7 +12,7 @@ use Yii;
  * @property int $point_end_id
  * @property string $date_start
  * @property string $time_start
- * @property string $time_all
+ * @property int $time_all
  * @property string $time_end
  * @property int $user_id
  * @property string $created_at
@@ -31,9 +31,11 @@ class Route extends \yii\db\ActiveRecord
     const SCENARIO_STEP3 = 'step3';
 
     public int $step = 1;
-    public ?string $stop_point = null;
-    public ?string $route_item = null;
-    // public ?string $route_item = null;
+    public $stop_points;
+    public $route_items;
+    public $time_pause;
+   
+    
 
 
     /**
@@ -49,16 +51,17 @@ class Route extends \yii\db\ActiveRecord
      */
     public function rules()
     {
-        return [
-            // [[ 'time_all', 'time_end', 'user_id'], 'required'],
+        return [           
             [['point_start_id', 'point_end_id', 'date_start', 'time_start'], 'required', 'on' => self::SCENARIO_STEP1],
             ['point_end_id', 'compare','operator' => '!=', 'compareAttribute' => 'point_start_id'], 
 
-            [['point_start_id', 'point_end_id', 'user_id', 'step'], 'integer'],
-            [['date_start', 'time_start', 'time_all', 'time_end', 'created_at', 'updated_at'], 'safe'],
+            [['point_start_id', 'point_end_id', 'time_all', 'user_id', 'step'], 'integer'],
+            [['date_start', 'time_start',  'time_end', 'created_at', 'updated_at'], 'safe'],
             [['point_start_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_start_id' => 'id']],
             [['point_end_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_end_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
+            [['route_items', 'stop_points'], 'safe'],
+            [['time_pause'], 'time', 'min' => '2:00', 'max' => '6:00', 'format' => 'php:H:i'],
 
 
         ];

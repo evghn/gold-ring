@@ -18,6 +18,8 @@ use Yii;
  */
 class RouteItem extends \yii\db\ActiveRecord
 {
+    const SCENARIO_CREATE = 'create';
+
     /**
      * {@inheritdoc}
      */
@@ -32,9 +34,9 @@ class RouteItem extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['route_id', 'point_id'], 'required'],
+            [['route_id', 'point_id'], 'required', 'on' => self::SCENARIO_CREATE],
             [['route_id', 'point_id', 'time_route'], 'integer'],
-            [['pause'], 'safe'],
+            [['time_pause'], 'time', 'min' => '2:00', 'max' => '6:00', 'format' => 'php:H:i'],
             [['route_id'], 'exist', 'skipOnError' => true, 'targetClass' => Route::class, 'targetAttribute' => ['route_id' => 'id']],
             [['point_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_id' => 'id']],
         ];
@@ -49,7 +51,7 @@ class RouteItem extends \yii\db\ActiveRecord
             'id' => 'ID',
             'route_id' => 'Route ID',
             'point_id' => 'Point ID',
-            'pause' => 'Pause',
+            'time_pause' => 'Время остановки',
             'time_route' => 'Time Route',
         ];
     }

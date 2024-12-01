@@ -51,7 +51,7 @@ $this->title = 'Личный кабинет';
             
             <div class='my-3'>
                 <?= Html::a('Создание маршрута', ['create'], ['class' => 'btn btn-outline-success']) ?>
-                <?= Html::a('test', ['test'], ['class' => 'btn btn-success']) ?>
+                <?# Html::a('test', ['test'], ['class' => 'btn btn-success']) ?>
 
             </div>
 

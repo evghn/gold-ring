@@ -5,8 +5,10 @@ namespace app\modules\account\controllers;
 use app\models\Edges;
 use app\models\Point;
 use app\models\Route;
+use app\models\RouteItem;
 use app\models\UserInfo;
 use Yii;
+use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\web\Controller;
@@ -28,7 +30,7 @@ class RouteController extends Controller
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::className(),
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
                     ],
@@ -93,11 +95,12 @@ class RouteController extends Controller
             3 => $model->scenario = Route::SCENARIO_STEP3
         };
 
-        $startPoints = Point::getStartPoints();
+        
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post())) {
-
+                // VarDumper::dump($model->route_items, 10, true); die;
+                
                 if ($model->validate()) {
                     if ($model->step == 3) {
                         return $this->redirect(['view', 'id' => $model->id]);
@@ -106,54 +109,103 @@ class RouteController extends Controller
                     $model->step++;
 
                     switch ($model->step) {                        
-                        case 2:
-                            $routes = Edges::traceGo($model->point_start_id, $model->point_end_id);
-                            VarDumper::dump($routes, 10, true); die;
-
+                        case 2:                            
                             $dataProvider = new ArrayDataProvider();
+                            $routes = Edges::traceGo(
+                                $model->point_start_id, 
+                                $model->point_end_id
+                            );
+                            $model->route_items = json_encode($routes);
                             $dataProvider->allModels = $routes;
                             $model->scenario = Route::SCENARIO_STEP2;
                             break;
                         case 3:
+                            $routes = json_decode($model->route_items, true);
+                            $routes = isset($_POST['route-1'])
+                                ? $routes[1]
+                                : $routes[0];
+                            $model->time_all = $routes['time_all'];
+                            $model->route_items = json_encode($routes);
+                            
+
+                            array_pop($routes['points']);
+                            array_shift($routes['points']);
+
+                            $model->stop_points = [];
+                            foreach ($routes['points'] as $item) {
+                                $rI = new RouteItem();
+                                $rI->point_id = $item['source_id'];
+                                $model->stop_points[] = $rI;
+                            }
+                            $dataProvider->allModels = $routes['points'];
+
+                            // VarDumper::dump($routes, 10, true); 
+                            // VarDumper::dump($model->stop_points, 10, true); 
+                            // die;
                             $model->scenario = Route::SCENARIO_STEP3;
                     };
                 }
             }
         }
-        // } else {
-        //     $model->loadDefaultValues();
-        // }
+        
 
         
         return $this->render('create', [
-            'model' => $model,
-            'startPoints' => $startPoints,
+            'model' => $model,            
             'dataProvider' => $dataProvider,
         ]);
     }
 
 
-    public function actionEndPoints($id)
+    public function actionCalcPause()
     {
-        $items = !empty($id) 
-            ? Point::getEndPoints($id)
-            : [];
-        $result = '<option>Выберете конечный пункт</option>';
-        // VarDumper::dump($items, 10, true); die;
+        $model = new Route();
+        if ($this->request->isPost && $model->load($this->request->post()) ) {
+            $routes = json_decode($model->route_items, true);
+            array_pop($routes['points']);
+            array_shift($routes['points']);
+            $model->stop_points = [];
+            $model->time_all = $routes['time_all'];
+            foreach ($routes['points'] as $item) {                
+                $model->stop_points[] = new RouteItem();
+            }
+            Model::loadMultiple($model->stop_points, Yii::$app->request->post());
+            if (Model::validateMultiple($model->stop_points)) {                
+                foreach ($model->stop_points as $item) {
+                    if ($item->time_pause) {
+                        $t = (int)substr($item->time_pause, 0, 2) * 60 * 60 +
+                            (int)substr($item->time_pause, 3, 2)*60;
+                        $model->time_all += $t;
+                    }
+                }               
+            } 
+            
+            return $this->renderAjax('pause', compact('model'));
+        }
+    }
 
-        $result .= implode(
-            array_map(fn($val) => "<option value='$val->id'>" . $val->title . "</option>",
-            $items
-        ));
+
+    // public function actionEndPoints($id)
+    // {
+    //     $items = !empty($id) 
+    //         ? Point::getEndPoints($id)
+    //         : [];
+    //     $result = '<option>Выберете конечный пункт</option>';
+    //     // VarDumper::dump($items, 10, true); die;
+
+    //     $result .= implode(
+    //         array_map(fn($val) => "<option value='$val->id'>" . $val->title . "</option>",
+    //         $items
+    //     ));
         
-        return $result;
-    }
+    //     return $result;
+    // }
 
 
-    public function actionTest()
-    {
-        VarDumper::dump(Edges::traceGo(7, 5), 10, true);
-    }
+    // public function actionTest()
+    // {
+    //     VarDumper::dump(Edges::traceGo(1, 8), 10, true);
+    // }
 
     
     /**

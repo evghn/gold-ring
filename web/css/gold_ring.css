@@ -1,3 +1,11 @@
 .nav-color {
     background-color: rgb(112, 4, 145);
 }
+
+/* .route-item {
+    cursor: pointer;
+} */
+.route-item:hover {
+    background-color: rgba(245, 244, 248, 0.4);
+    
+}
