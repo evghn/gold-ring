@@ -93,7 +93,7 @@ class Edges extends \yii\db\ActiveRecord
         ;
     }
 
-    
+
     public static function secondsToTime($seconds)
     {
         $dtF = new \DateTime('@0');
@@ -124,9 +124,8 @@ class Edges extends \yii\db\ActiveRecord
             ->orderBy('source_id')
             ->indexBy('source_id')
             ->asArray()
-            ->all()
-            ;
-        
+            ->all();
+
 
         $end_point = 0;
         // поиск что конечная точка - тупик
@@ -136,7 +135,7 @@ class Edges extends \yii\db\ActiveRecord
 
         if ($end_route->target->end_point) {
             // конец маршрута - это точно тупик :)
-            
+
             if ($end_route->source_id == $id_start) {
                 // маршрут всего 2 города
                 $sql = self::getRawRing()
@@ -153,86 +152,76 @@ class Edges extends \yii\db\ActiveRecord
 
                 return $result;
             }
-            
+
             // есть альтернативный маршрут 
-            $end_point = null;              
+            $end_point = null;
             // поднятие конечной точки временно на кольцо  
             $id_end = $end_route->source_id;
-        }    
-
-            
-            
-            $ring_keys = array_keys($ring);
-            $_ring_keys = array_reverse($ring_keys);
-
-            $route1 = [...$ring_keys, ...$ring_keys];
-            $route2 = [...$_ring_keys, ...$_ring_keys];
-
-            // обрезаем до желтого
-            array_splice($route1, 0, array_search($id_start, $route1));
-            // обрезаем после желтого
-            array_splice($route1, array_search($id_end, $route1)+1);
-            
-            // ----забирем с желотого и далее
-            // $route2 = array_splice($route2, 0, array_search($id_start, $route2));
-            
-            //обрезаем до желтого
-            array_splice($route2, 0, array_search($id_start, $route2));
-            
-            // обрезаем после желтого
-            array_splice($route2, array_search($id_end, $route2)+1);
-
-            
-            if (isset($end_ring)) {
-                // надо добавить тупик если он есть
-                $route1 = [...$route1, ...$end_ring ];
-                $route2 = [...$route2, ...$end_ring ];
-            }
-
-            $rout1_sql = self::getRawRing()
-                ->where([
-                    'source_id' => $route1,                    
-                ])
-                ->andFilterWhere(['t.end_point' => $end_point])
-                ->orderBy(new Expression("field(source_id, " . implode(",", $route1) . ")"))
-                ; 
-            
-            $rout2_sql = self::getRawRing()
-                ->where(['source_id' => $route2])
-                ->andFilterWhere(['t.end_point' => $end_point])
-                ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"))
-                ;
+        }
 
 
-            $time1 = (clone $rout1_sql)  
-                ->where(['source_id' => array_slice($route1, 0, 1)])    
-                ->sum(new Expression('TIME_TO_SEC(time)'))
-                ;
-                
-                $time2 = (clone $rout2_sql)
-                ->where(['source_id' => array_slice($route2, 1)])    
-                ->sum(new Expression('TIME_TO_SEC(time)'))
-                ;
-                
-                // var_dump($time1->createCommand()->rawSql); 
-                // var_dump($time2->createCommand()->rawSql); 
-                // die;
-            
-                $result[] = [
-                    'points' => $rout1_sql->asArray()->all(),
-                    'time_all' => $time1,
-                    'min_time' => $time1 < $time2,
 
-                ];
-                
-                $result[] = [
-                    'points' => $rout2_sql->asArray()->all(),
-                    'time_all' => $time2,
-                    'min_time' => $time2 < $time1,
-                ];
-               
-                                    
-                return $result;
-            }
+        $ring_keys = array_keys($ring);
+        $_ring_keys = array_reverse($ring_keys);
 
+        $route1 = [...$ring_keys, ...$ring_keys];
+        $route2 = [...$_ring_keys, ...$_ring_keys];
+
+        // обрезаем до желтого
+        array_splice($route1, 0, array_search($id_start, $route1));
+        // обрезаем после желтого
+        array_splice($route1, array_search($id_end, $route1) + 1);
+
+        // ----забирем с желотого и далее
+        // $route2 = array_splice($route2, 0, array_search($id_start, $route2));
+
+        //обрезаем до желтого
+        array_splice($route2, 0, array_search($id_start, $route2));
+
+        // обрезаем после желтого
+        array_splice($route2, array_search($id_end, $route2) + 1);
+
+
+        if (isset($end_ring)) {
+            // надо добавить тупик если он есть
+            $route1 = [...$route1, ...$end_ring];
+            $route2 = [...$route2, ...$end_ring];
+        }
+
+        $rout1_sql = self::getRawRing()
+            ->where([
+                'source_id' => $route1,
+            ])
+            ->andFilterWhere(['t.end_point' => $end_point])
+            ->orderBy(new Expression("field(source_id, " . implode(",", $route1) . ")"));
+
+        $rout2_sql = self::getRawRing()
+            ->where(['source_id' => $route2])
+            ->andFilterWhere(['t.end_point' => $end_point])
+            ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"));
+
+        $time1 = (clone $rout1_sql)
+            ->where(['source_id' => array_slice($route1, 0, 1)])
+            ->sum(new Expression('TIME_TO_SEC(time)'));
+
+        $time2 = (clone $rout2_sql)
+            ->where(['source_id' => array_slice($route2, 1)])
+            ->sum(new Expression('TIME_TO_SEC(time)'));
+
+        $result[] = [
+            'points' => $rout1_sql->asArray()->all(),
+            'time_all' => $time1,
+            'min_time' => $time1 < $time2,
+
+        ];
+
+        $result[] = [
+            'points' => $rout2_sql->asArray()->all(),
+            'time_all' => $time2,
+            'min_time' => $time2 < $time1,
+        ];
+
+
+        return $result;
+    }
 }

@@ -34,26 +34,30 @@ if (empty($form)) {
             <?= Edges::secondsToTime($model->time_all) ?>
         </span>
     </div>
-    <?php if (Edges::isMoning($model->time_all)): ?>
-            <div class="alert alert-danger p-2 my-3 fs-5 text" role="alert">
-            Внимание! Во время прибытия автобуса на конечный пункт
-            общественный транспорт не работает
-            </div>
-        <?php endif ?>
+    <?php if (count($model->stop_points)): ?>
 
-    <div class="fw-semibold fs-5 text my-3">Остановки по маршруту: </div>
+        <?php if (Edges::isMoning($model->time_all)): ?>
+                <div class="alert alert-danger p-2 my-3 fs-5 text" role="alert">
+                Внимание! Во время прибытия автобуса на конечный пункт
+                общественный транспорт не работает
+                </div>
+            <?php endif ?>
 
-    <div class="fw-semibold fs-5 text my-2  border border-primary rounded p-3 col-4">
+        <div class="fw-semibold fs-5 text my-3">Остановки по маршруту: </div>
 
-        <?php foreach ($model->stop_points as $key => $item): ?>
-            <?= $form->field($item, "[$key]time_pause")
-                ->textInput(['type' => 'time', 'min' => '02:00', 'max' => '06:00', 'class' => 'pause-item  form-control', 'style'=> 'width: 150px',])
-                ->label($item->point->title, ['class' => 'col-8'])
-            ?>
-            <?= $form->field($item, "[$key]point_id")->hiddenInput()->label(false) ?>
-        <?php endforeach ?>
-    </div>
+        <div class="fw-semibold fs-5 text my-2  border border-primary rounded p-3 col-4">
 
+            <?php foreach ($model->stop_points as $key => $item): ?>
+                <?= $form->field($item, "[$key]time_pause")
+                    ->textInput(['type' => 'time', 'min' => '02:00', 'max' => '06:00', 'class' => 'pause-item  form-control', 'style'=> 'width: 150px',])
+                    ->label($item->point->title, ['class' => 'col-8'])
+                ?>
+                <?= $form->field($item, "[$key]point_id")->hiddenInput()->label(false) ?>
+            <?php endforeach ?>
+        </div>
+    <?php else: ?>
+        <div class="fw-semibold fs-5 text my-3">Остановки по маршруту отсуствуют </div>
+    <?php endif ?>   
 
     <?= $form->field($model, 'route_items')->hiddenInput()->label(false) ?>
     <?= $form->field($model, 'time_all')->hiddenInput()->label(false) ?>
