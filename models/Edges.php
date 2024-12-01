@@ -190,7 +190,9 @@ class Edges extends \yii\db\ActiveRecord
             }
 
             $rout1_sql = self::getRawRing()
-                ->where(['source_id' => $route1])
+                ->where([
+                    'source_id' => $route1,                    
+                ])
                 ->andFilterWhere(['t.end_point' => $end_point])
                 ->orderBy(new Expression("field(source_id, " . implode(",", $route1) . ")"))
                 ; 
@@ -201,14 +203,20 @@ class Edges extends \yii\db\ActiveRecord
                 ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"))
                 ;
 
-            $time1 = (clone $rout1_sql)  
-                ->sum(new Expression('TIME_TO_SEC(time)'))
-                ;
 
-            $time2 = (clone $rout2_sql)
+            $time1 = (clone $rout1_sql)  
+                ->where(['source_id' => array_slice($route1, 0, 1)])    
                 ->sum(new Expression('TIME_TO_SEC(time)'))
                 ;
-                      
+                
+                $time2 = (clone $rout2_sql)
+                ->where(['source_id' => array_slice($route2, 1)])    
+                ->sum(new Expression('TIME_TO_SEC(time)'))
+                ;
+                
+                // var_dump($time1->createCommand()->rawSql); 
+                // var_dump($time2->createCommand()->rawSql); 
+                // die;
             
                 $result[] = [
                     'points' => $rout1_sql->asArray()->all(),
