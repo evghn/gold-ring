@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: MariaDB-11.2
--- Время создания: Ноя 29 2024 г., 07:17
+-- Время создания: Дек 02 2024 г., 04:10
 -- Версия сервера: 11.2.2-MariaDB
 -- Версия PHP: 8.3.6
 
@@ -24,11 +24,11 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `edges`
+-- Структура таблицы `edge`
 --
 
-DROP TABLE IF EXISTS `edges`;
-CREATE TABLE `edges` (
+DROP TABLE IF EXISTS `edge`;
+CREATE TABLE `edge` (
   `id` int(10) UNSIGNED NOT NULL,
   `source_id` int(10) UNSIGNED NOT NULL,
   `target_id` int(10) UNSIGNED NOT NULL,
@@ -36,10 +36,10 @@ CREATE TABLE `edges` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Дамп данных таблицы `edges`
+-- Дамп данных таблицы `edge`
 --
 
-INSERT INTO `edges` (`id`, `source_id`, `target_id`, `time`) VALUES
+INSERT INTO `edge` (`id`, `source_id`, `target_id`, `time`) VALUES
 (12, 1, 2, '01:30:00'),
 (13, 2, 3, '01:10:00'),
 (14, 3, 4, '01:00:00'),
@@ -49,8 +49,8 @@ INSERT INTO `edges` (`id`, `source_id`, `target_id`, `time`) VALUES
 (18, 7, 8, '01:10:00'),
 (19, 8, 9, '00:40:00'),
 (20, 9, 1, '02:40:00'),
-(21, 9, 10, '01:00:00'),
-(22, 7, 11, '01:10:00');
+(21, 10, 9, '01:00:00'),
+(22, 11, 7, '01:10:00');
 
 -- --------------------------------------------------------
 
@@ -115,12 +115,24 @@ CREATE TABLE `route` (
   `point_end_id` int(10) UNSIGNED NOT NULL,
   `date_start` date NOT NULL,
   `time_start` time NOT NULL,
-  `time_all` time NOT NULL,
-  `time_end` time NOT NULL,
+  `time_all` int(10) UNSIGNED NOT NULL,
+  `time_end` int(10) UNSIGNED DEFAULT NULL,
   `user_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `before_end` int(10) UNSIGNED DEFAULT NULL,
+  `after_start` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `route`
+--
+
+INSERT INTO `route` (`id`, `point_start_id`, `point_end_id`, `date_start`, `time_start`, `time_all`, `time_end`, `user_id`, `created_at`, `updated_at`, `before_end`, `after_start`) VALUES
+(54, 1, 9, '2024-12-13', '11:00:00', 35400, 75000, 10, '2024-12-02 00:53:26', NULL, NULL, 5400),
+(56, 1, 9, '2024-12-13', '11:00:00', 35400, 72600, 10, '2024-12-02 01:00:57', NULL, NULL, 5400),
+(59, 1, 10, '2024-12-13', '11:00:00', 13200, 52800, 10, '2024-12-02 01:06:46', NULL, 3600, 9600),
+(60, 1, 10, '2024-12-13', '11:00:00', 13200, 52800, 10, '2024-12-02 01:08:20', NULL, 3600, 9600);
 
 -- --------------------------------------------------------
 
@@ -133,9 +145,35 @@ CREATE TABLE `route_item` (
   `id` int(10) UNSIGNED NOT NULL,
   `route_id` int(10) UNSIGNED NOT NULL,
   `point_id` int(10) UNSIGNED NOT NULL,
-  `pause` time DEFAULT NULL,
-  `time_route` int(10) UNSIGNED NOT NULL DEFAULT 0
+  `time_route` time NOT NULL DEFAULT '00:00:00',
+  `time_route_sec` int(10) UNSIGNED DEFAULT NULL,
+  `time_visit` int(10) UNSIGNED DEFAULT NULL,
+  `time_out` int(10) UNSIGNED DEFAULT NULL,
+  `time_pause` time DEFAULT NULL,
+  `time_pause_sec` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `route_item`
+--
+
+INSERT INTO `route_item` (`id`, `route_id`, `point_id`, `time_route`, `time_route_sec`, `time_visit`, `time_out`, `time_pause`, `time_pause_sec`) VALUES
+(151, 54, 2, '01:10:00', 4200, 45000, 45000, NULL, NULL),
+(152, 54, 3, '01:00:00', 3600, 49200, 49200, NULL, NULL),
+(153, 54, 4, '01:00:00', 3600, 52800, 52800, NULL, NULL),
+(154, 54, 5, '01:40:00', 6000, 56400, 56400, NULL, NULL),
+(155, 54, 6, '01:40:00', 6000, 62400, 62400, NULL, NULL),
+(156, 54, 7, '01:10:00', 4200, 68400, 68400, NULL, NULL),
+(157, 54, 8, '00:40:00', 2400, 72600, 72600, NULL, NULL),
+(159, 56, 2, '01:10:00', 4200, 45000, 45000, NULL, NULL),
+(160, 56, 3, '01:00:00', 3600, 49200, 49200, NULL, NULL),
+(161, 56, 4, '01:00:00', 3600, 52800, 52800, NULL, NULL),
+(162, 56, 5, '01:40:00', 6000, 56400, 56400, NULL, NULL),
+(163, 56, 6, '01:40:00', 6000, 62400, 62400, NULL, NULL),
+(164, 56, 7, '01:10:00', 4200, 68400, 68400, NULL, NULL),
+(165, 56, 8, '00:40:00', 2400, 72600, 72600, NULL, NULL),
+(168, 59, 9, '02:40:00', 9600, 49200, 49200, NULL, NULL),
+(169, 60, 9, '02:40:00', 9600, 49200, 49200, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -158,7 +196,7 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`id`, `inn`, `password`, `auth_key`, `role_id`) VALUES
 (3, '7801025747', '$2y$13$/xuCPCEXSkLy.BIm4ap3r.n1u6LbuB.S1OfStH56B2xEYvl6SGqO6', NULL, 2),
-(10, '1234567892', '$2y$13$2qTWfpSyrSyMk2gp/XjvBubuRgDgqsqa1HJZXE6cdIByT60FkWxhi', 'SDPPnezPcjcUXlCfJY3fB7ey10m-vnQw', 1),
+(10, '1234567892', '$2y$13$2qTWfpSyrSyMk2gp/XjvBubuRgDgqsqa1HJZXE6cdIByT60FkWxhi', 'nHy5qr6lyN84Kya12NOeLof7Ls3gXNOv', 1),
 (11, '1234567891', '$2y$13$F/cGPlNGzBVv0VVu9XYLI.808ieHmNWKI5LwLAT/pmUD8Q7wxDAgK', NULL, 1);
 
 -- --------------------------------------------------------
@@ -197,9 +235,9 @@ INSERT INTO `user_info` (`id`, `user_id`, `title`, `address`, `rto`, `kpp`, `rs`
 --
 
 --
--- Индексы таблицы `edges`
+-- Индексы таблицы `edge`
 --
-ALTER TABLE `edges`
+ALTER TABLE `edge`
   ADD PRIMARY KEY (`id`),
   ADD KEY `edges_ibfk_1` (`source_id`),
   ADD KEY `edges_ibfk_2` (`target_id`);
@@ -253,9 +291,9 @@ ALTER TABLE `user_info`
 --
 
 --
--- AUTO_INCREMENT для таблицы `edges`
+-- AUTO_INCREMENT для таблицы `edge`
 --
-ALTER TABLE `edges`
+ALTER TABLE `edge`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
@@ -274,13 +312,13 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT для таблицы `route`
 --
 ALTER TABLE `route`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT для таблицы `route_item`
 --
 ALTER TABLE `route_item`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=170;
 
 --
 -- AUTO_INCREMENT для таблицы `user`
@@ -299,11 +337,11 @@ ALTER TABLE `user_info`
 --
 
 --
--- Ограничения внешнего ключа таблицы `edges`
+-- Ограничения внешнего ключа таблицы `edge`
 --
-ALTER TABLE `edges`
-  ADD CONSTRAINT `edges_ibfk_1` FOREIGN KEY (`source_id`) REFERENCES `point` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `edges_ibfk_2` FOREIGN KEY (`target_id`) REFERENCES `point` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `edge`
+  ADD CONSTRAINT `edge_ibfk_1` FOREIGN KEY (`source_id`) REFERENCES `point` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `edge_ibfk_2` FOREIGN KEY (`target_id`) REFERENCES `point` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `route`

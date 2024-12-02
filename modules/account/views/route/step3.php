@@ -10,7 +10,7 @@ use yii\widgets\Pjax;
 
 // VarDumper::dump($model, 10, true);
 // VarDumper::dump($data, 10, true); die;
-
+date_default_timezone_set('UTC');
 
 if (empty($form)) {
     $form = ActiveForm::begin([

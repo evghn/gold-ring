@@ -96,10 +96,11 @@ class RouteController extends Controller
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionTraceView($id)
     {
-        return $this->render('view', [
+        return $this->renderAjax('trace-route-view', [
             'model' => $this->findModel($id),
+            'modelItem' => RouteItem::findAll(['route_id' => $id]),
         ]);
     }
 
@@ -122,16 +123,22 @@ class RouteController extends Controller
                     if ($model->step == 3) {
                         // сохранение маршрута
                         if ($model->save()) {
-                            $routes = json_decode($model->route_items, true);            
+                            $routes = json_decode($model->route_items, true);
+                            
+                            // VarDumper::dump($routes, 10, true); die;
                             $model->stop_points = [];
                             $model->time_all = $routes['time_all'];
                             foreach ($routes['points'] as $item) {
                                 $model->stop_points[] = new RouteItem();
                             }
                             
+                            $time_route = Edge::timeToSec($model->time_start);
+                            $model->after_start = $routes['start_end_point'][0]['time_sec'];
+                            $time_route += $model->after_start;
+                            $time_end = $time_route;
+                            
                             Model::loadMultiple($model->stop_points, Yii::$app->request->post());
                             if (Model::validateMultiple($model->stop_points)) {                                   
-                                $time_route = 0;
                                 foreach ($routes['points'] as $key => $item) {
                                     $item_point = $model->stop_points[$key];
                                     $item_point->route_id = $model->id;
@@ -140,25 +147,44 @@ class RouteController extends Controller
                                     $item_point->time_route_sec = $item['time_sec'];
                                     $item_point->time_route = $item['time'];
 
-                                    $time_route += $item_point->time_route_sec;
-
                                     $item_point->time_visit = $time_route;
-
+                                    
                                     if ($item_point->time_pause) {
                                         $item_point->time_pause_sec =  Edge::timeToSec($item_point->time_pause);
-                                        $time_route += $item_point->time_pause_sec;                                
+                                        $time_route += $item_point->time_pause_sec;
+                                        $time_end = $item_point->time_pause_sec;
+                                        $model->time_all += $item_point->time_pause_sec;
                                     }
                                     $item_point->time_out = $time_route;
+                                    
+                                    if($key != count($routes['points'])-1) {
+                                        $time_route += $item_point->time_route_sec;
+                                    }
 
                                     if (! $item_point->save()) {
                                         VarDumper::dump($item_point->errors,10, true);
                                         die;
                                     }
                                 }
-
-                                $model->time_end = $time_route;
-                                $model->save();
                             }
+
+                            // + последний point
+
+                            $model->before_end = $routes['start_end_point'][1] 
+                                ? $routes['start_end_point'][1]['time_sec']
+                                : 0;
+                            $time_route +=  $model->before_end;   
+                                
+
+                            if ($routes['points']) {
+                                $model->time_end = $time_route 
+                                // + $model->before_end + $model->after_start
+                                ;
+                            } else {
+                                $model->time_end = $time_end + $model->before_end;
+                            }
+                            
+                            $model->save();
                         } else {
                             VarDumper::dump($model->errors, 10, true);                            
                         }
@@ -272,4 +298,5 @@ class RouteController extends Controller
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+
 }

@@ -35,16 +35,18 @@ use yii\helpers\VarDumper;
     <div>
         Время в пути:
         <span class="fw-semibold fs-5 text">
-            <?= Edge::secondsToTime($model->time_all) ?>
+            <?= 
+            
+            Edge::secondsToTime( $model->time_all) ?>
         </span>
     </div>
     <div class="form-group d-flex justify-content-end mt-3 px-2 gap-3">
-        <?= Html::a('Pасписание маршрута', ['view', 'id' => $model->id], ['class' => 'btn btn-outline-primary' ]) ?>
+        <?= Html::a('Pасписание маршрута', ['trace-view', 'id' => $model->id], ['class' => 'btn btn-outline-primary btn-route-view-modal']) ?>
         <?php        
             $origin = new DateTime($model->date_start);
             $target = new DateTime();
             if ($origin > $target &&  $origin->diff($target)->format("%a") >= 3) {
-                echo Html::a('Отменить', ['cancel'], ['class' => 'btn btn-outline-warning']);
+                echo Html::a('Отменить', ['delete', 'id' => $model->id], ['class' => 'btn btn-outline-warning', 'data-method' => 'post']);
             }
         ?>
     </div>

@@ -29,7 +29,7 @@ class Route extends \yii\db\ActiveRecord
     public int $step = 1;
     public $stop_points;
     public $route_items;
-    public $time_pause;
+    public $time_pause;    
    
     /**
      * {@inheritdoc}
@@ -48,8 +48,8 @@ class Route extends \yii\db\ActiveRecord
             [['point_start_id', 'point_end_id', 'date_start', 'time_start'], 'required'],
             ['point_end_id', 'compare','operator' => '!=', 'compareAttribute' => 'point_start_id'], 
 
-            [['point_start_id', 'point_end_id', 'time_all', 'user_id', 'step'], 'integer'],
-            [['date_start', 'time_start',  'time_end', 'created_at', 'updated_at'], 'safe'],
+            [['point_start_id', 'point_end_id', 'time_all', 'user_id', 'step', 'before_end', 'after_start'], 'integer'],
+            [['date_start', 'time_start',  'time_end', 'created_at', 'updated_at', 'last_point'], 'safe'],
             [['point_start_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_start_id' => 'id']],
             [['point_end_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_end_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],

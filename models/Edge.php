@@ -96,13 +96,16 @@ class Edge extends \yii\db\ActiveRecord
     }
 
 
-    public static function secondsToTime($seconds)
+    public static function secondsToTime($seconds, $min = false)
     {
         $dtF = new \DateTime('@0');
         $dtT = new \DateTime("@$seconds");
         $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
         if ($dtF->diff($dtT)->format('%a')) {
             return $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
+        }
+        if ($min) {
+            return $dtF->diff($dtT)->format('%h:%i');
         }
         return $dtF->diff($dtT)->format('%h ч., %i мин.');        
     }
@@ -203,6 +206,10 @@ class Edge extends \yii\db\ActiveRecord
             $route2 = [...$route2, $end_route->target_id];
             $route2_2 = [...$route2_2, $end_route->source_id];
         }
+
+        // VarDumper::dump($route1, 10, true);
+        // VarDumper::dump($route1_2, 10, true);
+        // die;
         
         $where1 = implode(' or ',
             array_map(
@@ -221,18 +228,35 @@ class Edge extends \yii\db\ActiveRecord
         );
 
 
-        // формируем вермя общее время пути
+        // формируем общее время пути
         $time1 = self::getRawRing()
             ->where($where1)
             ->orderBy(new Expression("field(source_id, " . implode(",", $route1) . ")"))
-            ->sum(new Expression('TIME_TO_SEC(time)'))
+            // ->sum(new Expression('TIME_TO_SEC(time)'))
             ;
 
         $time2 = self::getRawRing()
             ->where($where2)
             ->orderBy(new Expression("field(source_id, " . implode(",", $route2) . ")"))
-            ->sum(new Expression('TIME_TO_SEC(time)'))
+            // ->sum(new Expression('TIME_TO_SEC(time)'))
             ;
+
+        // 
+        $start_end_point1 = (clone $time1)
+            ->asArray()
+            ->all();
+        $start_end_point1 = [array_shift($start_end_point1), array_pop($start_end_point1)];
+        
+
+        $start_end_point2 = (clone $time2)
+            ->asArray()
+            ->all();
+        $start_end_point2 = [array_pop($start_end_point2), array_shift($start_end_point2)];
+
+
+        $time1 = $time1->sum(new Expression('TIME_TO_SEC(time)'));
+        $time2 = $time2->sum(new Expression('TIME_TO_SEC(time)'));
+
 
         // формирование точек останова без начального и конечного пункта
         $route1 = [...$ring_keys, ...$ring_keys];
@@ -275,16 +299,22 @@ class Edge extends \yii\db\ActiveRecord
                 ->all();
         }
 
+        // VarDumper::dump($start_end_point1, 10, true);
+        // VarDumper::dump($start_end_point2, 10, true);
+        // die;
+
         $result[] = [
             'points' => $route1,
             'time_all' => $time1,
             'min_time' => $time1 < $time2,
+            'start_end_point' => $start_end_point1,
         ];
 
         $result[] = [
             'points' => $route2,
             'time_all' => $time2,
             'min_time' => $time2 < $time1,
+            'start_end_point' => $start_end_point2,
         ];
 
 
