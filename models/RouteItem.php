@@ -19,6 +19,9 @@ use Yii;
 class RouteItem extends \yii\db\ActiveRecord
 {
     const SCENARIO_CREATE = 'create';
+    const SCENARIO_CALC = 'calc';
+
+    const SCENARIO_UPDATE = 'update';
 
     /**
      * {@inheritdoc}
@@ -39,7 +42,8 @@ class RouteItem extends \yii\db\ActiveRecord
             [['time_route',  'time_pause'], 'safe'],
             [['route_id'], 'exist', 'skipOnError' => true, 'targetClass' => Route::class, 'targetAttribute' => ['route_id' => 'id']],
             [['point_id'], 'exist', 'skipOnError' => true, 'targetClass' => Point::class, 'targetAttribute' => ['point_id' => 'id']],
-            [['time_pause'], 'time', 'min' => '2:00', 'max' => '6:00', 'format' => 'php:H:i'],
+            [['time_pause'], 'time', 'min' => '2:00', 'max' => '6:00', 'format' => 'php:H:i', 'on' => self::SCENARIO_CALC],
+            [['time_pause'], 'timeUpdate', 'on' => self::SCENARIO_UPDATE],
         ];
     }
 
@@ -78,5 +82,28 @@ class RouteItem extends \yii\db\ActiveRecord
     }
 
 
+    public function timeUpdate($attribute, $params)
+    {
+        $old = $this->getOldAttribute($attribute);
+        // var_dump($old); die;
+        if ($this->$attribute) {
+            $value = Edge::timeToSec($this->$attribute);
+            if (is_null($old)) {
+                // изначально пусто
+                if ($value != 7200) {
+                    $this->addError($attribute, 'Время стоянки может быть только 2 часа');                    
+                }
+            } else {
+                // изменение прошлого значения
+                if ($value < 7200 || $value > 8 * 3600) {
+                    $this->addError($attribute, 'Время стоянки может быть от 2 до 8 часов');
+                }
+            }
+        } else {
+            if ($old) {
+                $this->addError($attribute, 'Время стоянки может быть от 2 до 8 часов');
+            }
+        }
+    }
     
 }

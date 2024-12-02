@@ -49,7 +49,7 @@ use yii\widgets\Pjax;
             <div class="col-2">
                 <?= $form->field($model, 'date_start')->textInput(['type' => 'date', 'min' => date('Y-m-d', time() + 3600 * 24 * 10), 'value' => date('Y-m-d', time() + 3600 * 24 * 11)]) ?>
 
-                <?= $form->field($model, 'time_start')->textInput(['type' => 'time', 'value' => '11:00']) ?>
+                <?= $form->field($model, 'time_start')->textInput(['type' => 'time', /* 'value' => '11:00' */]) ?>
             </div>
 
             <div class="form-group">

@@ -215,7 +215,7 @@ class RouteController extends Controller
                             $model->route_items = json_encode($routes);
                             $model->stop_points = [];
                             foreach ($routes['points'] as $item) {
-                                $rI = new RouteItem();
+                                $rI = new RouteItem(['scenario' => RouteItem::SCENARIO_CALC]);
                                 $rI->point_id = $item['source_id'];
                                 $model->stop_points[] = $rI;
                             }
@@ -242,7 +242,7 @@ class RouteController extends Controller
             $model->stop_points = [];
             $model->time_all = $routes['time_all'];
             foreach ($routes['points'] as $item) {                
-                $model->stop_points[] = new RouteItem();
+                $model->stop_points[] = new RouteItem(['scenario' => RouteItem::SCENARIO_CALC]);
             }
             Model::loadMultiple($model->stop_points, Yii::$app->request->post());
             if (Model::validateMultiple($model->stop_points)) {                

@@ -64,6 +64,7 @@ $config = [
         ],
         'manager' => [
             'class' => 'app\modules\manager\Module',
+            'defaultRoute' => 'route/index',
         ],
     ],
 ];

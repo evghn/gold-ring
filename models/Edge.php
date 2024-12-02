@@ -100,7 +100,8 @@ class Edge extends \yii\db\ActiveRecord
     {
         $dtF = new \DateTime('@0');
         $dtT = new \DateTime("@$seconds");
-        $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
+        // $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
+
         if ($dtF->diff($dtT)->format('%a')) {
             return $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
         }
@@ -125,8 +126,7 @@ class Edge extends \yii\db\ActiveRecord
 
     public static function timeToSec($time)
     {
-        return (int)substr($time, 0, 2) * 3600 +
-        (int)substr($time, 3, 2) * 60;
+        return substr($time, 0, 2) * 3600 + substr($time, 3, 2) * 60;
     }
 
 

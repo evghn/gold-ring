@@ -16,6 +16,7 @@ $(() => {
         e.preventDefault();
         $('#view-route-modal').modal('hide');      
     })
+
     $("#route-view-modal-pjax").on('pjax:end', 
         () => $('#view-route-modal').modal('show')
     );   

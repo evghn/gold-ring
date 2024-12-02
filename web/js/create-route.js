@@ -5,8 +5,8 @@ $(() => {
             url: "/account/route/calc-pause",
             method: "POST",
             data: $("#form-create-route").serialize(),
-            pushState: false,
-            replaceState: false,
+            push: false,
+            replace: false,
             timeout: 5000
         })
     })

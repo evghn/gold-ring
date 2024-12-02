@@ -116,10 +116,9 @@ if ($dataProviderOn->count || $dataProviderOff->count) {
     ]);        
         Pjax::begin([
             'id' => 'route-view-modal-pjax',
-            'enablePushState' => false,                    
+            'enablePushState' => false,                                
             'timeout' => false,
-        ]);
-            echo "<div></div>";
+        ]);            
         Pjax::end();
     Modal::end();  
     
