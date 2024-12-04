@@ -24,7 +24,7 @@
         <tr>
             <th scope="row"><?= $row++ ?></th>
             <td><?= $item->point->title ?></td>
-            <td class="text-center"><?= date('H:i:s', $item->time_visit) ?></td>
+            <td class="text-center"><?= date('H:i:s', $model->time_start+$item->time_visit) ?></td>
             <td class="text-center"><?= date('H:i:s', $item->time_out) ?></td>
             <td class="text-center"><?= $item->time_pause ?></td>
         </tr>

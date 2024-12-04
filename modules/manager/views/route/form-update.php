@@ -26,11 +26,16 @@ Pjax::begin([
     <?php
         $form = ActiveForm::begin([
             'id' => 'form-update-route',
+            'action' => "/manager/route/update?id=$model->id",
             'options' => [
                 'data-pjax' => true,
             ]
         ]);
     ?>
+
+    <?= $form->field($model, "time_all")->hiddenInput()->label(false) ?>
+    <?= $form->field($model, "time_end")->hiddenInput()->label(false) ?>
+
         <div class="col-5">
             <div>
                 <span class="fw-semibold fs-5 text">
@@ -55,17 +60,15 @@ Pjax::begin([
             <div>
                 Время пребытия:
                 <span class="fw-semibold fs-5 text">
-                    <?# Edge::timeVisit($model->time_start, $model->time_all) ?>
-                    <?= Edge::secondsToTime($model->time_end, true) ?>
-                    
+                    <?= date("H:i:s", $model->time_end) ?>
                 </span>
             </div>
 
             <?php if (count($stopItems)): ?>
 
-                <?php if ($no_save): ?>
+                <?php if (date("H", $model->time_end) < 6): ?>
                     <div class="alert alert-danger p-2 my-3 fs-5 text" role="alert">
-                        Внимание! Автобуса прибывает на конечный пункт раньше 6 утра, 
+                        Внимание! Автобус прибывает на конечный пункт раньше 6 утра, 
                         измените вермя остановок!
                     </div>
                 <?php endif ?>
@@ -89,7 +92,10 @@ Pjax::begin([
             
             <div class="d-flex justify-content-between">
                 <?= Html::a('Отменить', ['index'], ['class' => 'btn btn-outline-info']) ?>
-                <?= Html::a('Сохранить', ['update', 'id' => $model->id], ['class' => 'btn btn-outline-success ' . ($no_save ? 'disabled' : '') ]) ?>
+                <?= $no_save 
+                    ? ''
+                    : Html::submitButton('Сохранить',  ['class' => 'btn btn-outline-success']) 
+                ?>
             </div>
         </div>
     <?php ActiveForm::end() ?>

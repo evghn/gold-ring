@@ -23,7 +23,7 @@ $this->title = 'Личный кабинет менеджера';
 
 
 
-        <div class="fs-4 text border-bottom border-primary-subtle">
+        <div class="fs-4 text border-bottom border-primary-subtle mb-3">
             Предстоящие маршруты
         </div>
         <?php Pjax::begin([
@@ -46,7 +46,7 @@ $this->title = 'Личный кабинет менеджера';
 
         <?php Pjax::end(); ?>
 
-        <div class="fs-4 text border-bottom border-primary-subtle">
+        <div class="fs-4 text border-bottom border-primary-subtle mb-3">
             Прошедшие маршруты
         </div>
         <?php Pjax::begin([

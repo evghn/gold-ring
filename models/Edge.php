@@ -102,11 +102,11 @@ class Edge extends \yii\db\ActiveRecord
         $dtT = new \DateTime("@$seconds");
         // $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
 
-        if ($dtF->diff($dtT)->format('%a')) {
-            return $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
-        }
         if ($min) {
             return $dtF->diff($dtT)->format('%h:%i');
+        }
+        if ($dtF->diff($dtT)->format('%a')) {
+            return $dtF->diff($dtT)->format('%a д., %h ч., %i мин.');
         }
         return $dtF->diff($dtT)->format('%h ч., %i мин.');        
     }
@@ -165,6 +165,7 @@ class Edge extends \yii\db\ActiveRecord
                     'points' => [],
                     'time_all' => $sql['time_sec'],
                     'min_time' => true,
+                    'start_end_point' => [null, null],                    
                 ];
 
                 return $result;

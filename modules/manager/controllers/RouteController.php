@@ -81,32 +81,38 @@ class RouteController extends Controller
             ->where(['route_id' => $id])
             ->indexBy('id')
             ->all();
-            $no_save = false;
-            foreach($stopItems as &$item) {
+            $no_save = null;
+            
+            foreach($stopItems as $item) {
                 $item->scenario = RouteItem::SCENARIO_UPDATE;
             }
+            
+            date_default_timezone_set('UTC');
 
-            if (Model::loadMultiple($stopItems, Yii::$app->request->post())) {
-                
-                if (Model::validateMultiple($stopItems)) {                
-                    // VarDumper::dump($stopItems, 10, true); die;
+            if (Model::loadMultiple($stopItems, Yii::$app->request->post())) {                
+                Model::validateMultiple($stopItems);               
                     
-                    $moning = date("H", $model->time_end) < 6; // было
-    
-                    $time_all = $model->after_start + $model->after_start; 
-    
-                    foreach ($stopItems as $item) {
-                        $time_all += $item->time_route_sec;
-                        if ($item->time_pause) {
-                            $time_all += Edge::timeToSec($item->time_pause);                        
-                        }
+                $moning = date("H", $model->time_end) < 6; // было
+                $model->time_all = $model->after_start; 
+
+                foreach ($stopItems as $item) {
+                    $model->time_all += $item->time_route_sec;
+                    if ($item->time_pause && !$item->errors) {
+                        $model->time_all += Edge::timeToSec($item->time_pause);                        
                     }
-    
-                    if (!$moning && Edge::isMoning($model->time_start, $time_all)) {
+                    
+                    if ($item->errors) {
                         $no_save = true;
                     }
+                }
+
+                $model->time_end = Edge::timeToSec($model->time_start) + $model->time_all;
+
+                if (!$no_save && !$moning && (date("H", $model->time_end) < 6)) {                        
+                    $no_save = true;
+                }
     
-                } 
+                 
             }
             
             return $this->renderAjax('form-update', compact('model', 'no_save', 'stopItems'));
@@ -122,8 +128,7 @@ class RouteController extends Controller
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionUpdate($id)
-    {
-        date_default_timezone_set('UTC');
+    {        
         $model = $this->findModel($id);
         
         // $model->route_items = json_encode($routes);
@@ -134,9 +139,18 @@ class RouteController extends Controller
 
         
         if ($this->request->isPost && $model->load($this->request->post())) {
+            $model->updated_at = date("Y-m-d H:i:s");
+            if (Model::loadMultiple($stopItems, Yii::$app->request->post())) {
+                if (Model::validateMultiple($stopItems)) {
+                    // var_dump(__LINE__); die;
+                    foreach ($stopItems as $item) {
+                        $item->save(false);
+                    }
+                    $model->save();
+                }
+            }
             
-            die;
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['index']);
         }
         
         return $this->render('update', [

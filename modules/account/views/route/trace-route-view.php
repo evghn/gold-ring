@@ -1,4 +1,7 @@
 <?php
+
+use app\models\Edge;
+
     $row = 1;
     date_default_timezone_set('UTC');
 ?>
@@ -24,8 +27,8 @@
         <tr>
             <th scope="row"><?= $row++ ?></th>
             <td><?= $item->point->title ?></td>
-            <td class="text-center"><?= date('H:i:s', $item->time_visit) ?></td>
-            <td class="text-center"><?= date('H:i:s', $item->time_out) ?></td>
+            <td class="text-center"><?= date('H:i:s', Edge::timeToSec($model->time_start)+ $item->time_visit) ?></td>
+            <td class="text-center"><?= date('H:i:s', Edge::timeToSec($model->time_start)+ $item->time_out) ?></td>
             <td class="text-center"><?= $item->time_pause ?></td>
         </tr>
     <?php endforeach ?>    

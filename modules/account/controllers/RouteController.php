@@ -241,19 +241,20 @@ class RouteController extends Controller
             $routes = json_decode($model->route_items, true);            
             $model->stop_points = [];
             $model->time_all = $routes['time_all'];
+
             foreach ($routes['points'] as $item) {                
                 $model->stop_points[] = new RouteItem(['scenario' => RouteItem::SCENARIO_CALC]);
             }
             Model::loadMultiple($model->stop_points, Yii::$app->request->post());
-            if (Model::validateMultiple($model->stop_points)) {                
-                foreach ($model->stop_points as $item) {
-                    if ($item->time_pause) {
-                        $t = (int)substr($item->time_pause, 0, 2) * 60 * 60 +
-                            (int)substr($item->time_pause, 3, 2)*60;
-                        $model->time_all += $t;
-                    }
-                }               
-            } 
+            Model::validateMultiple($model->stop_points);                
+            foreach ($model->stop_points as $item) {
+                if ($item->time_pause && !$item->errors) {
+                    $t = (int)substr($item->time_pause, 0, 2) * 60 * 60 +
+                        (int)substr($item->time_pause, 3, 2)*60;
+                    $model->time_all += $t;
+                }
+            }               
+             
             
             return $this->renderAjax('step3', compact('model'));
         }

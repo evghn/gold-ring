@@ -10,22 +10,24 @@ use yii\helpers\VarDumper;
 
 <div class="form-group mb-3 border border-primary rounded p-3 border-opacity-50">
     <div>
-        <div>
+        <div class="d-flex justify-content-between">
+            <div>
+                <span class="fw-semibold fs-5 text text-primary me-3"> Маршрут № <?= $model->id ?> </span>
+                <span class="fw-semibold fs-5 text">
+                    <?= Yii::$app->formatter->asDate($model->date_start, 'php:d.m.Y') ?>
+                </span>
+                в
+                <span class="fw-semibold fs-5 text">
+                    <?= $model->time_start ?>
+                </span>
+            </div>
             <?php if ($model->updated_at): ?>
                 <div class="alert alert-primary p-2" role="alert">
                     Изменено диспетчером
                 </div>
             <?php endif ?>
         </div>
-        <div>
-            <span class="fw-semibold fs-5 text">
-                <?= Yii::$app->formatter->asDate($model->date_start, 'php:d.m.Y') ?>
-            </span>
-            в
-            <span class="fw-semibold fs-5 text">
-                <?= $model->time_start ?>
-            </span>
-        </div>
+        
         <div class="fw-semibold fs-4 text border-bottom border-primary-subtle border-opacity-75 text-primary-emphasis mb-2">
             <?= $model->pointStart->title ?>
             -
